@@ -33,10 +33,17 @@ export class AuthComponent {
         this.router.navigate([redirect]);
       },
       error: (err) => {
-        this.error = err.error || 'Invalid email or password';
+        this.error = this.parseError(err, 'Invalid email or password');
         this.loading = false;
       }
     });
+  }
+
+  private parseError(err: any, fallback: string): string {
+    if (!err.status) return 'Server is waking up — please try again in a moment';
+    if (typeof err.error === 'string') return err.error;
+    if (err.error?.message) return err.error.message;
+    return fallback;
   }
 
   register(): void {
@@ -48,7 +55,7 @@ export class AuthComponent {
         this.router.navigate(['/rewards']);
       },
       error: (err) => {
-        this.error = err.error || 'Registration failed';
+        this.error = this.parseError(err, 'Registration failed');
         this.loading = false;
       }
     });

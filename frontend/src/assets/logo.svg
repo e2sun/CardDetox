@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- bag body -->
+  <path d="M10 18h28l-2 22H12L10 18z" fill="#F5EDE3" stroke="#C9956C" stroke-width="1.5"/>
+  <!-- bag top edge -->
+  <rect x="8" y="16" width="32" height="3" rx="1" fill="#C9956C"/>
+  <!-- handles -->
+  <path d="M17 18 Q17 9 24 9 Q31 9 31 18" stroke="#C9956C" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- stem -->
+  <line x1="24" y1="32" x2="24" y2="26" stroke="#87A878" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- left leaf -->
+  <path d="M24 29 Q19 25 18 27.5 Q20 31 24 29Z" fill="#87A878"/>
+  <!-- right leaf -->
+  <path d="M24 27.5 Q29 23.5 30 26 Q28 29.5 24 27.5Z" fill="#87A878"/>
+</svg>

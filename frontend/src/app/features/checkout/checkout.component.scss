@@ -1,0 +1,206 @@
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  padding: 40px 24px 80px;
+  align-items: start;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.checkout-section {
+  margin-bottom: 40px;
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    margin-bottom: 6px;
+    color: var(--dark);
+  }
+
+  .section-note { font-size: 13px; color: var(--text-light); margin-bottom: 20px; }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fake-payment { display: flex; flex-direction: column; gap: 20px; }
+
+.fake-card {
+  background: linear-gradient(135deg, var(--dark), #4a3728);
+  color: white;
+  padding: 28px 28px 20px;
+  border-radius: 2px;
+  max-width: 320px;
+  font-family: 'Playfair Display', serif;
+  box-shadow: 0 8px 32px var(--shadow-md);
+}
+
+.card-chip {
+  width: 40px;
+  height: 28px;
+  background: var(--gold);
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+
+.card-number {
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.payment-note { font-size: 13px; color: var(--text-light); font-style: italic; line-height: 1.6; }
+
+.token-section {
+  background: var(--ivory);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.token-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dark);
+
+  input { display: none; }
+
+  .toggle-switch {
+    width: 44px;
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+  }
+
+  input:checked + .toggle-switch {
+    background: var(--sage);
+    &::after { transform: translateX(20px); }
+  }
+}
+
+.token-available { font-size: 12px; color: var(--rose-gold); font-weight: 600; }
+
+.token-slider {
+  label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 10px; strong { color: var(--dark); } }
+
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--sage);
+    cursor: pointer;
+  }
+}
+
+.range-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+// Order summary
+.order-summary {
+  background: var(--ivory);
+  padding: 32px;
+  position: sticky;
+  top: 80px;
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+
+  img { width: 56px; height: 68px; object-fit: cover; background: var(--cream); }
+}
+
+.order-item-info { display: flex; flex-direction: column; gap: 2px; }
+.order-item-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+.order-item-meta { font-size: 11px; color: var(--text-light); }
+.order-item-qty { font-size: 11px; color: var(--text-light); }
+.order-item-price { font-size: 13px; font-weight: 600; color: var(--dark); }
+
+.order-totals { margin-bottom: 20px; }
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+
+  &.discount { color: var(--sage); }
+  &.final { font-weight: 700; font-size: 16px; padding-top: 14px; border-bottom: none; }
+
+  .free { color: var(--sage); font-weight: 600; }
+}
+
+.place-order-btn {
+  width: 100%;
+  justify-content: center;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.checkout-reassurance {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-light);
+
+  div { display: flex; align-items: center; gap: 8px; }
+}

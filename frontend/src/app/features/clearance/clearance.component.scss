@@ -1,0 +1,77 @@
+.clearance-hero {
+  background: var(--dark);
+  color: var(--cream);
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.clearance-hero-inner {
+  max-width: 600px;
+  margin: 0 auto;
+
+  .sale-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--rose-gold);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-style: italic;
+    margin-bottom: 12px;
+    color: var(--cream);
+  }
+
+  p { font-size: 15px; opacity: 0.7; margin-bottom: 32px; }
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.count-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(250,247,242,0.1);
+  padding: 12px 20px;
+  min-width: 72px;
+
+  .count-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .count-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.6; margin-top: 4px; }
+}
+
+.count-sep { font-size: 28px; color: var(--gold); font-weight: 300; margin-bottom: 16px; }
+
+.clearance-grid { padding: 48px 24px 80px; }
+
+.clearance-header {
+  margin-bottom: 32px;
+
+  h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; margin-bottom: 6px; }
+  p { font-size: 13px; color: var(--text-light); }
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}

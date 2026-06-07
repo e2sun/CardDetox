@@ -1,0 +1,33 @@
+<div class="product-card">
+  <a [routerLink]="['/product', product.id]" class="card-image-wrap">
+    <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" class="card-image">
+    <div class="card-overlay">
+      <button class="quick-add" (click)="quickAdd($event)" [disabled]="addingToCart">
+        {{ addingToCart ? '...' : 'Quick Add' }}
+      </button>
+    </div>
+    <div class="badges">
+      <span *ngIf="product.isClearance" class="badge-sale">Sale −{{ discount }}%</span>
+      <span *ngIf="product.rating >= 4.8" class="badge-loved">Loved</span>
+    </div>
+  </a>
+
+  <div class="card-info">
+    <div class="card-meta">
+      <span class="card-subcategory">{{ product.subcategory }}</span>
+      <div class="card-stars">
+        <span *ngFor="let s of stars" [class]="'star star-' + s">★</span>
+        <span class="review-count">({{ product.reviewCount }})</span>
+      </div>
+    </div>
+    <a [routerLink]="['/product', product.id]" class="card-name">{{ product.name }}</a>
+    <div class="card-price">
+      <span class="price-current">DT {{ displayPrice | number:'1.0-0' }}</span>
+      <span *ngIf="product.isClearance" class="price-original">DT {{ product.price | number:'1.0-0' }}</span>
+    </div>
+    <div *ngIf="product.colors && product.colors.length > 0" class="card-colors">
+      <span *ngFor="let c of product.colors?.slice(0,4)" class="color-dot" [title]="c"></span>
+      <span *ngIf="(product.colors?.length || 0) > 4" class="more-colors">+{{ (product.colors?.length || 0) - 4 }}</span>
+    </div>
+  </div>
+</div>

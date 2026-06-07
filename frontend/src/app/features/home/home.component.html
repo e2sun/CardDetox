@@ -1,0 +1,127 @@
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">The urge is real. So is this cart.</p>
+    <h1 class="hero-title">Dress the life<br><em>you want to live.</em></h1>
+    <p class="hero-sub">100% fake fashion. 100% real satisfaction.<br>Shop freely. Spend nothing. Detox daily.</p>
+    <div class="hero-actions">
+      <a routerLink="/shop" class="btn-primary">Shop the Collection</a>
+      <a routerLink="/clearance" class="btn-secondary">View Sale</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=800&h=900" alt="Fashion editorial">
+    <div class="hero-tag">New Season</div>
+  </div>
+</section>
+
+<!-- The CartDetox promise -->
+<section class="promise-strip">
+  <div class="promise-item">
+    <span class="promise-icon">🛍️</span>
+    <span>Real shopping experience</span>
+  </div>
+  <div class="promise-divider"></div>
+  <div class="promise-item">
+    <span class="promise-icon">🌿</span>
+    <span>Earn Detox Tokens daily</span>
+  </div>
+  <div class="promise-divider"></div>
+  <div class="promise-item">
+    <span class="promise-icon">💸</span>
+    <span>Spend zero real money</span>
+  </div>
+  <div class="promise-divider"></div>
+  <div class="promise-item">
+    <span class="promise-icon">✨</span>
+    <span>Actually quite therapeutic</span>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="categories-section">
+  <div class="container">
+    <p class="section-subtitle">Explore</p>
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="categories-grid">
+      <div *ngFor="let cat of categories" class="category-card" (click)="shopCategory(cat.slug)">
+        <div class="category-image-wrap">
+          <img [src]="cat.image" [alt]="cat.name" loading="lazy">
+          <div class="category-overlay">
+            <span>Explore {{ cat.name }}</span>
+          </div>
+        </div>
+        <div class="category-label">{{ cat.name }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured / Most Loved -->
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <p class="section-subtitle">Community Favourites</p>
+        <h2 class="section-title">Most Loved</h2>
+      </div>
+      <a routerLink="/shop" class="btn-secondary">View All</a>
+    </div>
+    <div class="products-grid" *ngIf="featuredProducts.length > 0; else loading">
+      <app-product-card
+        *ngFor="let p of featuredProducts"
+        [product]="p"
+        (addedToCart)="onAddedToCart($event)">
+      </app-product-card>
+    </div>
+    <ng-template #loading>
+      <div class="loading-container"><div class="spinner"></div></div>
+    </ng-template>
+  </div>
+</section>
+
+<!-- Detox Tokens CTA -->
+<section class="tokens-cta">
+  <div class="tokens-cta-inner">
+    <div class="tokens-cta-text">
+      <p class="section-subtitle">Virtual Currency</p>
+      <h2>Earn Detox Tokens 🌿</h2>
+      <p>Sign up and get 1,000 DT instantly. Spin the wheel daily for more. Complete mindfulness challenges and earn rewards. Use your tokens at checkout — everything is on us.</p>
+      <a routerLink="/auth" class="btn-primary">Get 1,000 DT Free</a>
+    </div>
+    <div class="tokens-cta-visual">
+      <div class="token-display">
+        <div class="token-circle">
+          <span class="token-leaf">🌿</span>
+          <span class="token-amount">1,000</span>
+          <span class="token-label">Detox Tokens</span>
+        </div>
+        <div class="token-perks">
+          <div class="perk">✓ 1,000 DT on signup</div>
+          <div class="perk">✓ Daily spin wheel prizes</div>
+          <div class="perk">✓ Earn via mindfulness activities</div>
+          <div class="perk">✓ Use at checkout — fake-free shopping</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Clearance teaser -->
+<section class="clearance-teaser">
+  <div class="clearance-inner">
+    <div class="clearance-text">
+      <span class="sale-label">Limited Time</span>
+      <h2>Clearance Sale</h2>
+      <p>Up to 40% off curated pieces. Deals refresh every day.</p>
+      <a routerLink="/clearance" class="btn-gold">Shop Sale</a>
+    </div>
+    <div class="clearance-images">
+      <img src="https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=300&h=380" alt="Sale items">
+      <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=300&h=380" alt="Sale items">
+    </div>
+  </div>
+</section>
+
+<!-- Toast -->
+<div *ngIf="toast" class="toast success">{{ toast }} ✓</div>

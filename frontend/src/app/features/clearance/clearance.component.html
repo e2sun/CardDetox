@@ -1,0 +1,41 @@
+<section class="clearance-hero">
+  <div class="clearance-hero-inner">
+    <span class="sale-eyebrow">Limited Time</span>
+    <h1>Clearance Sale</h1>
+    <p>Up to 40% off curated pieces. Deals reset at midnight.</p>
+    <div class="countdown">
+      <div class="count-block">
+        <span class="count-num">{{ timeLeft.hours | number:'2.0-0' }}</span>
+        <span class="count-label">Hours</span>
+      </div>
+      <span class="count-sep">:</span>
+      <div class="count-block">
+        <span class="count-num">{{ timeLeft.minutes | number:'2.0-0' }}</span>
+        <span class="count-label">Minutes</span>
+      </div>
+      <span class="count-sep">:</span>
+      <div class="count-block">
+        <span class="count-num">{{ timeLeft.seconds | number:'2.0-0' }}</span>
+        <span class="count-label">Seconds</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="clearance-grid container" *ngIf="!loading">
+  <div class="clearance-header">
+    <h2>{{ products.length }} Sale Items</h2>
+    <p>All prices shown in Detox Tokens (DT). Everything is imaginary.</p>
+  </div>
+  <div class="products-grid">
+    <app-product-card
+      *ngFor="let p of products"
+      [product]="p"
+      (addedToCart)="onAddedToCart($event)">
+    </app-product-card>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading-container"><div class="spinner"></div></div>
+
+<div *ngIf="toast" class="toast success">{{ toast }} ✓</div>

@@ -1,0 +1,98 @@
+<div class="page-hero">
+  <h1>Your Cart</h1>
+  <p>{{ totalItems === 0 ? 'Nothing here yet.' : totalItems + ' items, entirely imaginary.' }}</p>
+</div>
+
+<div class="cart-layout container" *ngIf="!loading">
+  <!-- Authenticated cart -->
+  <ng-container *ngIf="authService.isLoggedIn">
+    <div class="cart-items" *ngIf="serverItems.length > 0">
+      <div class="cart-item" *ngFor="let item of serverItems">
+        <a [routerLink]="['/product', item.product.id]" class="item-image">
+          <img [src]="item.product.imageUrl" [alt]="item.product.name" loading="lazy">
+        </a>
+        <div class="item-details">
+          <div class="item-top">
+            <div>
+              <p class="item-category">{{ item.product.subcategory }}</p>
+              <h3 class="item-name">{{ item.product.name }}</h3>
+              <div class="item-variants">
+                <span *ngIf="item.selectedSize">Size: {{ item.selectedSize }}</span>
+                <span *ngIf="item.selectedColor"> · {{ item.selectedColor }}</span>
+              </div>
+            </div>
+            <span class="item-price">DT {{ getServerItemPrice(item) * item.quantity | number:'1.0-0' }}</span>
+          </div>
+          <div class="item-bottom">
+            <div class="qty-control">
+              <button (click)="updateQty(item, item.quantity - 1)" [disabled]="item.quantity <= 1">−</button>
+              <span>{{ item.quantity }}</span>
+              <button (click)="updateQty(item, item.quantity + 1)">+</button>
+            </div>
+            <button class="remove-btn" (click)="removeItem(item)">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary for authenticated -->
+    <div class="cart-summary" *ngIf="serverItems.length > 0">
+      <h2>Order Summary</h2>
+      <div class="summary-row"><span>Subtotal</span><span>DT {{ subtotal | number:'1.0-0' }}</span></div>
+      <div class="summary-row"><span>Fake Shipping</span><span class="free">FREE</span></div>
+      <div class="summary-row total"><span>Estimated Total</span><span>DT {{ subtotal | number:'1.0-0' }}</span></div>
+      <div *ngIf="authService.currentUser" class="token-balance">
+        <span class="token-icon">🌿</span>
+        <span>Your balance: <strong>DT {{ authService.currentUser.detoxTokens | number:'1.0-0' }}</strong></span>
+      </div>
+      <button class="btn-primary checkout-btn" (click)="checkout()">Proceed to Checkout</button>
+      <a routerLink="/shop" class="continue-link">← Continue Shopping</a>
+      <div class="cart-note"><span>🌿</span> Everything is imaginary, but the satisfaction is real.</div>
+    </div>
+  </ng-container>
+
+  <!-- Guest cart -->
+  <ng-container *ngIf="!authService.isLoggedIn">
+    <div class="cart-items" *ngIf="guestItems.length > 0">
+      <div class="cart-item" *ngFor="let item of guestItems">
+        <a [routerLink]="['/product', item.productId]" class="item-image">
+          <img [src]="item.product?.imageUrl || ''" [alt]="item.product?.name || ''" loading="lazy">
+        </a>
+        <div class="item-details">
+          <div class="item-top">
+            <div>
+              <p class="item-category">{{ item.product?.subcategory }}</p>
+              <h3 class="item-name">{{ item.product?.name }}</h3>
+              <div class="item-variants">
+                <span *ngIf="item.selectedSize">Size: {{ item.selectedSize }}</span>
+                <span *ngIf="item.selectedColor"> · {{ item.selectedColor }}</span>
+              </div>
+            </div>
+            <span class="item-price">DT {{ getGuestItemPrice(item) * item.quantity | number:'1.0-0' }}</span>
+          </div>
+          <div class="item-bottom">
+            <span class="qty-label">Qty: {{ item.quantity }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary" *ngIf="guestItems.length > 0">
+      <h2>Order Summary</h2>
+      <div class="summary-row"><span>Subtotal</span><span>DT {{ subtotal | number:'1.0-0' }}</span></div>
+      <div class="summary-row"><span>Fake Shipping</span><span class="free">FREE</span></div>
+      <div class="summary-row total"><span>Estimated Total</span><span>DT {{ subtotal | number:'1.0-0' }}</span></div>
+      <div class="guest-note">Sign in to access your Detox Tokens and save your cart.</div>
+      <button class="btn-primary checkout-btn" (click)="checkout()">Sign In to Checkout</button>
+      <a routerLink="/shop" class="continue-link">← Continue Shopping</a>
+    </div>
+  </ng-container>
+
+  <!-- Empty state -->
+  <div *ngIf="totalItems === 0" class="empty-state" style="grid-column: 1/-1">
+    <div class="empty-icon">🛍️</div>
+    <h3>Your cart is empty</h3>
+    <p>Browse our curated fashion collection and fill it up — for free!</p>
+    <a routerLink="/shop" class="btn-primary">Start Shopping</a>
+  </div>
+</div>

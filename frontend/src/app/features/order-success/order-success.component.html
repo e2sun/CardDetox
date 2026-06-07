@@ -1,0 +1,75 @@
+<div class="success-page" *ngIf="order">
+  <div class="success-hero">
+    <div class="success-icon">🛍️</div>
+    <h1>Your Order is Placed!</h1>
+    <p>You've just saved <strong>DT {{ order.totalTokens | number:'1.0-0' }}</strong> worth of fashion from your real wallet. Well done.</p>
+  </div>
+
+  <div class="success-content container">
+    <div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <span class="order-label">Order Number</span>
+          <span class="order-number">#{{ order.id }}</span>
+        </div>
+        <div>
+          <span class="order-label">Tracking</span>
+          <span class="tracking">{{ order.fakeTrackingNumber }}</span>
+        </div>
+        <div>
+          <span class="order-label">Status</span>
+          <span class="status">{{ order.status }}</span>
+        </div>
+        <div>
+          <span class="order-label">Estimated Delivery</span>
+          <span class="delivery">{{ order.estimatedDelivery | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="order-items">
+        <h3>Items in this (imaginary) order</h3>
+        <div class="order-item" *ngFor="let item of order.items">
+          <img [src]="item.product.imageUrl" [alt]="item.product.name" loading="lazy">
+          <div class="item-info">
+            <strong>{{ item.product.name }}</strong>
+            <span>{{ item.selectedSize }} {{ item.selectedColor }}</span>
+            <span>Qty: {{ item.quantity }}</span>
+          </div>
+          <span class="item-price">DT {{ item.priceAtPurchase * item.quantity | number:'1.0-0' }}</span>
+        </div>
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row" *ngIf="order.tokensUsed > 0">
+          <span>Tokens Applied</span>
+          <span>−DT {{ order.tokensUsed | number:'1.0-0' }}</span>
+        </div>
+        <div class="total-row final">
+          <span>Order Total</span>
+          <span>DT {{ order.totalTokens | number:'1.0-0' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-next">
+      <h2>What's next?</h2>
+      <div class="next-cards">
+        <a routerLink="/shop" class="next-card">
+          <span class="next-icon">🛍️</span>
+          <h4>Keep Shopping</h4>
+          <p>Your wishlist doesn't have to end here.</p>
+        </a>
+        <a routerLink="/rewards" class="next-card">
+          <span class="next-icon">🌿</span>
+          <h4>Earn More Tokens</h4>
+          <p>Complete mindfulness activities for DT rewards.</p>
+        </a>
+        <a routerLink="/account" class="next-card">
+          <span class="next-icon">📦</span>
+          <h4>View My Orders</h4>
+          <p>Your full imaginary purchase history.</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 64px);
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
+.auth-image {
+  position: relative;
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+
+  @media (max-width: 768px) { display: none; }
+}
+
+.auth-image-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48px;
+  background: linear-gradient(to top, rgba(42,33,24,0.85), transparent);
+  color: white;
+
+  h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; margin-bottom: 8px; }
+  p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+
+  .auth-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    div { font-size: 13px; opacity: 0.9; }
+  }
+}
+
+.auth-form-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 64px;
+  background: var(--cream);
+
+  @media (max-width: 1024px) { padding: 48px 40px; }
+  @media (max-width: 768px) { padding: 48px 24px; }
+}
+
+.auth-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--dark);
+  margin-bottom: 32px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  max-width: 400px;
+
+  button {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: -1px;
+
+    &.active { color: var(--dark); border-bottom-color: var(--dark); }
+  }
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--dark);
+    font-style: italic;
+  }
+
+  .form-subtitle {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-top: -12px;
+  }
+}
+
+.submit-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.switch-mode {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-light);
+
+  button {
+    background: none;
+    border: none;
+    color: var(--dark);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.privacy-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-light);
+  font-style: italic;
+}

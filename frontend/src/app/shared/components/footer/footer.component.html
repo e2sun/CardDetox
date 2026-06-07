@@ -1,0 +1,39 @@
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">CartDetox</div>
+      <p>A safe space for the shopping urge. Browse, add to cart, checkout — guilt-free, always free, completely fake.</p>
+      <div class="footer-tagline">🌿 Shop. Satisfy. Detox.</div>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a routerLink="/shop" [queryParams]="{category:'Clothing'}">Clothing</a>
+        <a routerLink="/shop" [queryParams]="{category:'Accessories'}">Accessories</a>
+        <a routerLink="/shop" [queryParams]="{category:'Shoes'}">Shoes</a>
+        <a routerLink="/shop" [queryParams]="{category:'Lifestyle'}">Lifestyle</a>
+        <a routerLink="/shop" [queryParams]="{category:'Beauty'}">Beauty</a>
+        <a routerLink="/clearance">Sale & Clearance</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a routerLink="/auth">Sign In / Register</a>
+        <a routerLink="/account">My Account</a>
+        <a routerLink="/rewards">Rewards</a>
+        <a routerLink="/cart">My Cart</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a routerLink="/about">About CartDetox</a>
+        <a routerLink="/about" fragment="resources">Resources</a>
+        <a routerLink="/about" fragment="how-it-works">How It Works</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© {{ year }} CartDetox. Everything in your cart is imaginary. Your progress is real.</p>
+    <p class="footer-note">If you're struggling with compulsive shopping, please reach out for support. You're not alone.</p>
+  </div>
+</footer>

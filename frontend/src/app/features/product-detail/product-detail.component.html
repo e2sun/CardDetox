@@ -1,0 +1,95 @@
+<div *ngIf="loading" class="loading-container"><div class="spinner"></div></div>
+
+<div *ngIf="product && !loading" class="detail-page">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb container">
+    <a routerLink="/shop">Shop</a>
+    <span>/</span>
+    <a routerLink="/shop" [queryParams]="{category: product.category}">{{ product.category }}</a>
+    <span>/</span>
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <div class="detail-layout container">
+    <!-- Image -->
+    <div class="detail-image">
+      <img [src]="product.imageUrl" [alt]="product.name">
+      <div *ngIf="product.isClearance" class="detail-badge">Sale −{{ discount }}%</div>
+    </div>
+
+    <!-- Info -->
+    <div class="detail-info">
+      <div class="detail-meta">
+        <span class="detail-category">{{ product.subcategory }}</span>
+        <div class="detail-stars">
+          <span *ngFor="let s of stars" [class]="s ? 'star star-full' : 'star star-empty'">★</span>
+          <span class="review-count">{{ product.rating }} ({{ product.reviewCount }} reviews)</span>
+        </div>
+      </div>
+
+      <h1 class="detail-title">{{ product.name }}</h1>
+
+      <div class="detail-price">
+        <span class="price-main">DT {{ displayPrice | number:'1.0-0' }}</span>
+        <span *ngIf="product.isClearance" class="price-orig">DT {{ product.price | number:'1.0-0' }}</span>
+        <span *ngIf="product.isClearance" class="price-save">Save DT {{ (product.price - displayPrice) | number:'1.0-0' }}</span>
+      </div>
+
+      <p class="detail-desc">{{ product.description }}</p>
+
+      <!-- Size selector -->
+      <div *ngIf="product.sizes && product.sizes.length > 0" class="option-group">
+        <label>Size <span *ngIf="selectedSize" class="selected-val">— {{ selectedSize }}</span></label>
+        <div class="size-grid">
+          <button *ngFor="let size of product.sizes"
+            [class.selected]="selectedSize === size"
+            (click)="selectedSize = size" class="size-btn">
+            {{ size }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Color selector -->
+      <div *ngIf="product.colors && product.colors.length > 0" class="option-group">
+        <label>Color <span *ngIf="selectedColor" class="selected-val">— {{ selectedColor }}</span></label>
+        <div class="color-list">
+          <button *ngFor="let color of product.colors"
+            [class.selected]="selectedColor === color"
+            (click)="selectedColor = color" class="color-chip">
+            {{ color }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Quantity -->
+      <div class="option-group">
+        <label>Quantity</label>
+        <div class="qty-control">
+          <button (click)="quantity = quantity > 1 ? quantity - 1 : 1">−</button>
+          <span>{{ quantity }}</span>
+          <button (click)="quantity = quantity + 1">+</button>
+        </div>
+      </div>
+
+      <!-- Add to cart -->
+      <button class="add-to-cart-btn" (click)="addToCart()" [disabled]="adding">
+        <span *ngIf="!adding">Add to Cart — DT {{ displayPrice * quantity | number:'1.0-0' }}</span>
+        <span *ngIf="adding" class="spinner"></span>
+      </button>
+
+      <!-- Perks -->
+      <div class="detail-perks">
+        <div class="perk-item"><span>🌿</span> Earn tokens on purchase</div>
+        <div class="perk-item"><span>✨</span> Free fake shipping, always</div>
+        <div class="perk-item"><span>💛</span> 100% imaginary, 100% satisfying</div>
+      </div>
+
+      <!-- Tags -->
+      <div *ngIf="product.tags && product.tags.length" class="detail-tags">
+        <a *ngFor="let tag of product.tags" routerLink="/shop" [queryParams]="{q: tag}" class="tag">{{ tag }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="toast" class="toast success">{{ toast }} ✓</div>

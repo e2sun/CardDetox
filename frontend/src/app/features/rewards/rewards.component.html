@@ -1,0 +1,87 @@
+<div class="page-hero">
+  <h1>Rewards</h1>
+  <p>Earn Detox Tokens through mindfulness activities. Spend them on imaginary fashion.</p>
+</div>
+
+<div class="rewards-page container">
+  <!-- Token balance -->
+  <div class="balance-card" *ngIf="authService.currentUser">
+    <div class="balance-inner">
+      <span class="balance-leaf">🌿</span>
+      <div>
+        <span class="balance-label">Your Balance</span>
+        <span class="balance-amount">{{ authService.currentUser.detoxTokens | number:'1.0-0' }} DT</span>
+      </div>
+    </div>
+    <div class="balance-stats">
+      <div class="stat">
+        <span class="stat-val">{{ authService.currentUser.totalOrders }}</span>
+        <span class="stat-label">Orders</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">{{ userRewards.length }}</span>
+        <span class="stat-label">Challenges</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">DT {{ authService.currentUser.totalSaved | number:'1.0-0' }}</span>
+        <span class="stat-label">Fake-Spent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spin Wheel -->
+  <section class="spin-section">
+    <div class="spin-header">
+      <p class="section-subtitle">Daily Reward</p>
+      <h2 class="section-title">Spin the Wheel</h2>
+      <p>{{ canSpin ? 'Your daily spin is ready! Give it a whirl.' : 'You\'ve spun today — come back tomorrow for another chance.' }}</p>
+    </div>
+    <app-spin-wheel
+      [canSpin]="canSpin"
+      (spinComplete)="onSpinComplete($event)">
+    </app-spin-wheel>
+    <div *ngIf="spinResult" class="spin-result">
+      <span>🎉</span> You won <strong>{{ spinResult }} Detox Tokens</strong>!
+    </div>
+  </section>
+
+  <!-- Activities -->
+  <section class="activities-section">
+    <div class="section-header-row">
+      <div>
+        <p class="section-subtitle">Anti-Consumption Activities</p>
+        <h2 class="section-title">Earn More Tokens</h2>
+      </div>
+    </div>
+
+    <div *ngFor="let cat of categories" class="category-group">
+      <h3 class="category-heading">{{ cat }}</h3>
+      <div class="rewards-grid">
+        <div *ngFor="let reward of rewardsByCategory(cat)"
+          class="reward-card"
+          [class.completed]="isCompletedToday(reward.id)">
+          <div class="reward-icon">{{ reward.icon }}</div>
+          <div class="reward-content">
+            <h4>{{ reward.title }}</h4>
+            <p>{{ reward.description }}</p>
+            <div class="reward-meta">
+              <span class="reward-tokens">+{{ reward.tokenReward }} DT</span>
+              <span *ngIf="reward.isRepeatable" class="reward-repeat">Daily</span>
+              <span *ngIf="!reward.isRepeatable" class="reward-once">One-time</span>
+            </div>
+          </div>
+          <button
+            class="complete-btn"
+            [disabled]="isCompletedToday(reward.id) || completing === reward.id"
+            (click)="completeReward(reward)">
+            <span *ngIf="isCompletedToday(reward.id)">✓ Done</span>
+            <span *ngIf="!isCompletedToday(reward.id) && completing !== reward.id">Complete</span>
+            <span *ngIf="completing === reward.id" class="spinner"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div *ngIf="toast" class="toast success">{{ toast }}</div>

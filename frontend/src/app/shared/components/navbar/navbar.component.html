@@ -1,0 +1,108 @@
+<nav class="navbar" [class.scrolled]="scrolled">
+  <div class="nav-container">
+
+    <!-- Mobile hamburger -->
+    <button class="hamburger" (click)="toggleMobileMenu()" [class.open]="mobileMenuOpen">
+      <span></span><span></span><span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <span class="logo-main">CartDetox</span>
+      <span class="logo-tag">by desire only</span>
+    </a>
+
+    <!-- Desktop nav links -->
+    <ul class="nav-links">
+      <li><a routerLink="/shop" routerLinkActive="active">Shop</a></li>
+      <li class="has-dropdown">
+        <a routerLink="/shop">Categories</a>
+        <div class="dropdown">
+          <a routerLink="/shop" [queryParams]="{category:'Clothing'}">Clothing</a>
+          <a routerLink="/shop" [queryParams]="{category:'Accessories'}">Accessories</a>
+          <a routerLink="/shop" [queryParams]="{category:'Shoes'}">Shoes</a>
+          <a routerLink="/shop" [queryParams]="{category:'Lifestyle'}">Lifestyle</a>
+          <a routerLink="/shop" [queryParams]="{category:'Beauty'}">Beauty</a>
+        </div>
+      </li>
+      <li><a routerLink="/clearance" routerLinkActive="active" class="sale-link">Sale</a></li>
+      <li *ngIf="user"><a routerLink="/rewards" routerLinkActive="active">Rewards</a></li>
+      <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+    </ul>
+
+    <!-- Right actions -->
+    <div class="nav-actions">
+      <!-- Search -->
+      <div class="search-wrap" [class.open]="searchOpen">
+        <form (ngSubmit)="search()">
+          <input type="text" [(ngModel)]="searchQuery" name="q" placeholder="Search..." (keydown.escape)="searchOpen=false">
+        </form>
+        <button class="btn-icon" (click)="searchOpen = !searchOpen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Token balance -->
+      <a *ngIf="user" routerLink="/account" class="token-pill">
+        <span class="token-icon">🌿</span>
+        <span>{{ user.detoxTokens | number:'1.0-0' }}</span>
+      </a>
+
+      <!-- Cart -->
+      <a routerLink="/cart" class="cart-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span *ngIf="cartCount > 0" class="badge">{{ cartCount }}</span>
+      </a>
+
+      <!-- Account -->
+      <a *ngIf="!user" routerLink="/auth" class="btn-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </a>
+
+      <div *ngIf="user" class="user-menu">
+        <button class="btn-icon user-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+        <div class="user-dropdown">
+          <div class="user-info">
+            <strong>{{ user.username }}</strong>
+            <span>{{ user.detoxTokens | number:'1.0-0' }} DT</span>
+          </div>
+          <a routerLink="/account">My Account</a>
+          <a routerLink="/account" [queryParams]="{tab:'orders'}">Orders</a>
+          <a routerLink="/rewards">Rewards</a>
+          <button (click)="logout()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" [class.open]="mobileMenuOpen">
+    <div class="mobile-menu-inner">
+      <a routerLink="/shop" (click)="closeMobileMenu()">Shop All</a>
+      <a routerLink="/shop" [queryParams]="{category:'Clothing'}" (click)="closeMobileMenu()">Clothing</a>
+      <a routerLink="/shop" [queryParams]="{category:'Accessories'}" (click)="closeMobileMenu()">Accessories</a>
+      <a routerLink="/shop" [queryParams]="{category:'Shoes'}" (click)="closeMobileMenu()">Shoes</a>
+      <a routerLink="/shop" [queryParams]="{category:'Lifestyle'}" (click)="closeMobileMenu()">Lifestyle</a>
+      <a routerLink="/shop" [queryParams]="{category:'Beauty'}" (click)="closeMobileMenu()">Beauty</a>
+      <a routerLink="/clearance" (click)="closeMobileMenu()" class="sale-link">Sale</a>
+      <a *ngIf="user" routerLink="/rewards" (click)="closeMobileMenu()">Rewards</a>
+      <a routerLink="/about" (click)="closeMobileMenu()">About</a>
+      <a *ngIf="!user" routerLink="/auth" (click)="closeMobileMenu()">Sign In</a>
+      <button *ngIf="user" (click)="logout(); closeMobileMenu()">Sign Out</button>
+    </div>
+  </div>
+</nav>

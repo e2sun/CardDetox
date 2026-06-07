@@ -84,9 +84,9 @@ For Railway deployment, set these in your service settings:
 
 ## A note on how this was built
 
-This was my first time using **Claude Code** to build a full stack application end to end — and honestly, it was a really cool experience. I came in with an idea and a folder structure, and we figured out the architecture, wrote the code, debugged the build errors, and got it deployed together.
+This was my first time using **Claude Code** to build a full stack application end to end, and honestly, it was a really cool experience. I came in with an idea and a folder structure, and we figured out the architecture, wrote the code, debugged the build errors, and got it deployed together.
 
-It's genuinely impressive what you can get done when you're not starting from a blank file. That said, the creative part — *what* to build, *why* it should exist, the personality of the app — that's still the human side of it. Tools like this are most useful when you actually have something to say. I wanted to make something that felt real and had a point to it, and Claude helped me get there faster than I could have on my own.
+It's genuinely impressive what you can get done when you're not starting from a blank file. That said, the creative part of figuring out *what* to build, *why* it should exist, and the personality of the app is still the human side of it. Tools like this are most useful when you actually have something to say. I wanted to make something that felt real and had a point to it, and Claude helped me get there faster than I could have on my own.
 
 If you've ever rage-added things to a cart at 1am and then felt guilty about it — this one's for you.
 

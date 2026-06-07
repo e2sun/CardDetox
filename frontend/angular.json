@@ -41,8 +41,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": {"buildTarget": "cartdetox:build:production"},
-            "development": {"buildTarget": "cartdetox:build:development"}
+            "production": {"browserTarget": "cartdetox:build:production"},
+            "development": {"browserTarget": "cartdetox:build:development"}
           },
           "defaultConfiguration": "development",
           "options": {
@@ -51,5 +51,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "6a4695c6-2318-4eca-9a0a-50e1ebe715b0"
   }
 }

@@ -6,11 +6,11 @@
 
 ## The idea
 
-I have a habit. Not a bad one, exactly — but I constantly find myself opening shopping websites, filling up my cart, and then closing the tab because I know I shouldn't actually buy anything. The urge is satisfied for about five minutes, and then I'm back at it.
+I have a habit. Not a bad one, exactly, but I constantly find myself opening shopping websites, filling up my cart, and then closing the tab because I know I shouldn't actually buy anything. The urge is satisfied for about five minutes, and then I'm back at it.
 
 So I built CartDetox — a fully fake fashion and lifestyle boutique that lets you shop without spending a single real dollar. Browse real-looking products, add them to your cart, fill in a fake credit card, and check out. The dopamine hit, none of the buyer's remorse.
 
-But here's the twist: you have to *earn* your spending money first. CartDetox gives you **Detox Tokens (DT)** — virtual currency you build up by completing daily challenges like the spin wheel (very Temu-coded), mindfulness check-ins, journaling, going outside, reading, and other activities that are genuinely good for you. The idea is that the app redirects the shopping urge into something healthier, even if just for a few minutes.
+But here's the twist: you have to *earn* your spending money first. CartDetox gives you **Detox Tokens (DT)**: virtual currency you build up by completing daily challenges like the spin wheel (very Temu-coded), mindfulness check-ins, journaling, going outside, reading, and other activities that are genuinely good for you. The idea is that the app redirects the shopping urge into something healthier, even if just for a few minutes.
 
 You can track every fake purchase you've made, see how much you've "spent," and feel the full satisfaction of a checkout confirmation — shipping address, order number, everything — without touching your actual wallet.
 

@@ -24,6 +24,10 @@ export class AuthComponent {
   ) {}
 
   login(): void {
+    if (!this.loginData.password || this.loginData.password.length < 6) {
+      this.error = 'Password must be at least 6 characters';
+      return;
+    }
     this.loading = true;
     this.error = '';
     this.authService.login(this.loginData).subscribe({
@@ -32,21 +36,18 @@ export class AuthComponent {
         const redirect = this.route.snapshot.queryParams['redirect'] || '/';
         this.router.navigate([redirect]);
       },
-      error: (err) => {
-        this.error = this.parseError(err, 'Invalid email or password');
+      error: () => {
+        this.error = 'Invalid email or password';
         this.loading = false;
       }
     });
   }
 
-  private parseError(err: any, fallback: string): string {
-    if (!err.status) return 'Server is waking up — please try again in a moment';
-    if (typeof err.error === 'string') return err.error;
-    if (err.error?.message) return err.error.message;
-    return fallback;
-  }
-
   register(): void {
+    if (!this.registerData.password || this.registerData.password.length < 6) {
+      this.error = 'Password must be at least 6 characters';
+      return;
+    }
     this.loading = true;
     this.error = '';
     this.authService.register(this.registerData).subscribe({
@@ -54,8 +55,8 @@ export class AuthComponent {
         this.cartService.mergeGuestCart().subscribe();
         this.router.navigate(['/rewards']);
       },
-      error: (err) => {
-        this.error = this.parseError(err, 'Registration failed');
+      error: () => {
+        this.error = 'Something went wrong — please try again';
         this.loading = false;
       }
     });

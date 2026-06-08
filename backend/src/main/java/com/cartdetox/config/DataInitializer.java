@@ -18,6 +18,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RewardRepository rewardRepository;
 
     private static final String IMG = "https://images.unsplash.com/photo-";
+    private static final String SRC = "https://source.unsplash.com/featured/600x800/?";
 
     @Override
     public void run(String... args) {
@@ -33,71 +34,71 @@ public class DataInitializer implements CommandLineRunner {
 
     private void refreshImages() {
         java.util.Map<String, String> imgs = new java.util.HashMap<>();
-        // Clothing - Dresses
-        imgs.put("Sundew Silk Slip Dress",      IMG + "1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Midnight Wrap Dress",         IMG + "1496747611176-843222e1e57c?auto=format&fit=crop&w=600&h=700");
+        // Clothing - Dresses (keyword-based for guaranteed match)
+        imgs.put("Sundew Silk Slip Dress",      SRC + "silk,slip,dress,sage&sig=1");
+        imgs.put("Midnight Wrap Dress",         SRC + "navy,wrap,dress,elegant&sig=2");
         imgs.put("Garden Party Midi Dress",     IMG + "1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Linen Cloud Dress",           IMG + "1585342082990-9aba2e5a7a2e?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Velvet Reverie Dress",        IMG + "1519688966784-54595a7e3b35?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Linen Cloud Dress",           SRC + "linen,shirt,dress,white,casual&sig=4");
+        imgs.put("Velvet Reverie Dress",        SRC + "velvet,dress,evening,plum&sig=5");
         // Clothing - Tops
-        imgs.put("Ivory Silk Camisole",         IMG + "1509631179647-0177331693ae?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Linen Off-Shoulder Top",      IMG + "1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Breton Stripe Tee",           IMG + "1503341504253-dff4815485f1?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Ribbed Knit Tank",            IMG + "1548624149-e20e3b3ef7c8?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Cashmere Crop Pullover",      IMG + "1576566588028-4147f3842f27?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Ivory Silk Camisole",         SRC + "silk,camisole,ivory,spaghetti&sig=6");
+        imgs.put("Linen Off-Shoulder Top",      SRC + "off,shoulder,linen,top&sig=7");
+        imgs.put("Breton Stripe Tee",           SRC + "stripe,breton,sailor,tshirt&sig=8");
+        imgs.put("Ribbed Knit Tank",            SRC + "ribbed,knit,tank,top&sig=9");
+        imgs.put("Cashmere Crop Pullover",      SRC + "cashmere,sweater,crop,cozy&sig=10");
         // Clothing - Bottoms
-        imgs.put("High-Rise Wide Leg Trousers", IMG + "1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&h=700");
+        imgs.put("High-Rise Wide Leg Trousers", SRC + "wide,leg,trousers,tailored&sig=11");
         imgs.put("Vintage Wide Leg Denim",      IMG + "1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Sage Pleated Midi Skirt",     IMG + "1618354691792-d1d42acfd860?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Linen Mini Skirt",            IMG + "1591369822680-b9a19e6aea01?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Sage Pleated Midi Skirt",     SRC + "pleated,midi,skirt,satin&sig=13");
+        imgs.put("Linen Mini Skirt",            SRC + "linen,mini,skirt,summer&sig=14");
         // Clothing - Outerwear
-        imgs.put("Cashmere Cocoon Coat",        IMG + "1539533018447-50cce9a83e61?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Velvet Blazer",               IMG + "1552902865-b72c031ac5ea?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Cashmere Cocoon Coat",        SRC + "camel,coat,oversized,wool&sig=15");
+        imgs.put("Velvet Blazer",               SRC + "velvet,blazer,burgundy&sig=16");
         imgs.put("Classic Trench Coat",         IMG + "1488161628813-04466f872be2?auto=format&fit=crop&w=600&h=700");
         // Accessories - Bags
-        imgs.put("Structured Woven Tote",       IMG + "1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Mini Crescent Bag",           IMG + "1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Slouchy Hobo Bag",            IMG + "1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Beaded Evening Clutch",       IMG + "1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Structured Woven Tote",       SRC + "leather,tote,bag,structured&sig=18");
+        imgs.put("Mini Crescent Bag",           SRC + "mini,crescent,handbag,leather&sig=19");
+        imgs.put("Slouchy Hobo Bag",            SRC + "hobo,shoulder,bag,cognac&sig=20");
+        imgs.put("Beaded Evening Clutch",       SRC + "beaded,clutch,evening,bag&sig=21");
         imgs.put("Bamboo Handle Bag",           IMG + "1584917865442-de89df76afd3?auto=format&fit=crop&w=600&h=700");
         // Accessories - Jewelry
-        imgs.put("Oversized Gold Hoops",        IMG + "1506630268652-29e6f32e9e04?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Pearl Pendant Necklace",      IMG + "1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Stacking Rings Set",          IMG + "1611085583191-a3b181a88401?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Gold Charm Bracelet",         IMG + "1573408301185-9521b23006c6?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Crystal Drop Earrings",       IMG + "1583743814966-84149a3f1f25?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Layered Chain Necklace",      IMG + "1576868872538-16a32c0c6e4a?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Oversized Gold Hoops",        SRC + "gold,hoop,earrings&sig=23");
+        imgs.put("Pearl Pendant Necklace",      SRC + "pearl,pendant,necklace,gold&sig=24");
+        imgs.put("Stacking Rings Set",          SRC + "stacking,rings,gold,delicate&sig=25");
+        imgs.put("Gold Charm Bracelet",         SRC + "charm,bracelet,gold,dainty&sig=26");
+        imgs.put("Crystal Drop Earrings",       SRC + "crystal,drop,earrings,glamour&sig=27");
+        imgs.put("Layered Chain Necklace",      SRC + "layered,chain,necklace,gold&sig=28");
         // Accessories - Other
-        imgs.put("Vintage Print Silk Scarf",    IMG + "1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Tortoise Shell Sunglasses",   IMG + "1511499767268-f6c9b1e7813b?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Vintage Print Silk Scarf",    SRC + "silk,scarf,vintage,print&sig=29");
+        imgs.put("Tortoise Shell Sunglasses",   SRC + "tortoise,sunglasses,oversized&sig=30");
         // Shoes
-        imgs.put("Square Toe Block Heel",       IMG + "1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Strappy Kitten Heel",         IMG + "1554284126-aa88f22d8b74?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Platform Ankle Boot",         IMG + "1603487742131-4160ec999306?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Suede Knee-High Boot",        IMG + "1512965924232-4b80a3b6e72b?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Leather Chelsea Boot",        IMG + "1588258219511-64eb629cb833?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Square Toe Block Heel",       SRC + "block,heel,mule,shoes&sig=31");
+        imgs.put("Strappy Kitten Heel",         SRC + "strappy,kitten,heel,sandal&sig=32");
+        imgs.put("Platform Ankle Boot",         SRC + "platform,ankle,boot,leather&sig=33");
+        imgs.put("Suede Knee-High Boot",        SRC + "suede,knee,high,boot&sig=34");
+        imgs.put("Leather Chelsea Boot",        SRC + "chelsea,boot,leather,classic&sig=35");
         imgs.put("Platform White Sneaker",      IMG + "1542291026-7eec264c27ff?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Pointed Ballet Flat",         IMG + "1554220235-e9c99e51afe5?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Jute Wedge Espadrille",       IMG + "1536959769671-37b3c9b1765b?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Pointed Ballet Flat",         SRC + "ballet,flat,pointed,shoes&sig=37");
+        imgs.put("Jute Wedge Espadrille",       SRC + "espadrille,wedge,jute,summer&sig=38");
         // Lifestyle
         imgs.put("Amber & Vanilla Candle",      IMG + "1608181831718-c9d180d1b42c?auto=format&fit=crop&w=600&h=700");
         imgs.put("Forest Walk Candle",          IMG + "1602874801006-a7ceb9e4c67e?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Washed Linen Throw",          IMG + "1578662996442-48f60103fc96?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Washed Linen Throw",          SRC + "linen,throw,blanket,bed&sig=41");
         imgs.put("Rattan Arch Mirror",          IMG + "1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Dried Floral Arrangement",    IMG + "1490750967868-88df5691cc98?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Pressed Flower Journal",      IMG + "1531346878377-a5be20888e57?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Dried Floral Arrangement",    SRC + "dried,pampas,flowers,vase&sig=43");
+        imgs.put("Pressed Flower Journal",      SRC + "journal,notebook,flowers,writing&sig=44");
         imgs.put("Ceramic Mug Duo",             IMG + "1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&h=700");
         imgs.put("Natural Rubber Yoga Mat",     IMG + "1599901860904-17e6ed7083a0?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Rose Quartz Roller Set",      IMG + "1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Rose Quartz Roller Set",      SRC + "rose,quartz,roller,gua,sha,beauty&sig=47");
         // Beauty
-        imgs.put("Hyaluronic Glow Serum",       IMG + "1556228578-8c89e6adf883?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Botanical Rose Toner",        IMG + "1599305445671-ac291c95aaa9?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Kaolin Clay Face Mask",       IMG + "1613440534903-c8f0d3e7a5fe?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Vitamin C Brightening Cream", IMG + "1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Hyaluronic Glow Serum",       SRC + "serum,skincare,bottle,dropper&sig=48");
+        imgs.put("Botanical Rose Toner",        SRC + "toner,rose,skincare,bottle&sig=49");
+        imgs.put("Kaolin Clay Face Mask",       SRC + "face,mask,clay,skincare,jar&sig=50");
+        imgs.put("Vitamin C Brightening Cream", SRC + "moisturiser,cream,skincare,jar&sig=51");
         imgs.put("Golden Hour Eau de Parfum",   IMG + "1541643600914-78b084683702?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Garden Notes Perfume",        IMG + "1588776814546-1ffedbe47add?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Tinted Lip Treatment",        IMG + "1619451050621-83cb7aada2d7?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Illuminating Setting Powder", IMG + "1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&h=700");
+        imgs.put("Garden Notes Perfume",        SRC + "perfume,bottle,floral,fragrance&sig=53");
+        imgs.put("Tinted Lip Treatment",        SRC + "lip,balm,gloss,lipstick,beauty&sig=54");
+        imgs.put("Illuminating Setting Powder", SRC + "makeup,powder,compact,beauty&sig=55");
 
         // Low stock counts — show urgency on clearance + select items
         java.util.Map<String, Integer> stock = new java.util.HashMap<>();

@@ -152,9 +152,11 @@ public class DataInitializer implements CommandLineRunner {
             String raw = results.get(0).path("urls").path("raw").asText(null);
             if (raw == null || raw.isBlank()) return null;
 
-            // Size it to the 600x700 portrait the storefront expects.
-            String sep = raw.contains("?") ? "&" : "?";
-            return raw + sep + "auto=format&fit=crop&w=600&h=700";
+            // Strip Unsplash's tracking params (ixid, etc.) so the URL stays short
+            // enough for the 255-char image_url column, then size it to 600x700 portrait.
+            int q = raw.indexOf('?');
+            if (q >= 0) raw = raw.substring(0, q);
+            return raw + "?auto=format&fit=crop&w=600&h=700";
         } catch (Exception e) {
             System.out.println("[DataInitializer] Unsplash fetch failed for '" + query + "': " + e.getMessage());
             return null;

@@ -99,10 +99,31 @@ public class DataInitializer implements CommandLineRunner {
         imgs.put("Tinted Lip Treatment",        IMG + "1619451050621-83cb7aada2d7?auto=format&fit=crop&w=600&h=700");
         imgs.put("Illuminating Setting Powder", IMG + "1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&h=700");
 
+        // Low stock counts — show urgency on clearance + select items
+        java.util.Map<String, Integer> stock = new java.util.HashMap<>();
+        stock.put("Velvet Reverie Dress", 2);
+        stock.put("Cashmere Crop Pullover", 3);
+        stock.put("Linen Mini Skirt", 2);
+        stock.put("Classic Trench Coat", 3);
+        stock.put("Beaded Evening Clutch", 2);
+        stock.put("Crystal Drop Earrings", 4);
+        stock.put("Tortoise Shell Sunglasses", 3);
+        stock.put("Suede Knee-High Boot", 2);
+        stock.put("Jute Wedge Espadrille", 4);
+        stock.put("Rose Quartz Roller Set", 3);
+        stock.put("Kaolin Clay Face Mask", 5);
+        stock.put("Illuminating Setting Powder", 4);
+        stock.put("Rattan Arch Mirror", 2);
+        stock.put("Cashmere Cocoon Coat", 4);
+        stock.put("Garden Party Midi Dress", 5);
+        stock.put("Bamboo Handle Bag", 3);
+
         java.util.List<Product> products = productRepository.findAll();
         products.forEach(p -> {
             String url = imgs.get(p.getName());
             if (url != null) p.setImageUrl(url);
+            Integer count = stock.get(p.getName());
+            if (count != null) p.setStockCount(count);
         });
         productRepository.saveAll(products);
     }

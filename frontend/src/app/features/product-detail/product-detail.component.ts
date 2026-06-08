@@ -18,6 +18,7 @@ export class ProductDetailComponent implements OnInit {
   quantity = 1;
   adding = false;
   toast: string | null = null;
+  showSizeGuide = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -49,6 +50,26 @@ export class ProductDetailComponent implements OnInit {
 
   get stars(): number[] {
     return Array.from({ length: 5 }, (_, i) => i < Math.floor(this.product?.rating || 0) ? 1 : 0);
+  }
+
+  get stockMessage(): string {
+    const n = this.product?.stockCount;
+    if (!n || n > 5) return '';
+    if (n === 1) return 'Only 1 left — order soon!';
+    if (n <= 3) return `Only ${n} left in stock!`;
+    return `Almost gone — only ${n} left`;
+  }
+
+  get isClothing(): boolean { return this.product?.category === 'Clothing'; }
+  get isShoes(): boolean { return this.product?.category === 'Shoes'; }
+
+  get deliveryRange(): string {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    const from = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    d.setDate(d.getDate() + 2);
+    const to = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${from} – ${to}`;
   }
 
   addToCart(): void {

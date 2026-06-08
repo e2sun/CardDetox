@@ -90,6 +90,30 @@
 .price-orig { font-size: 16px; color: var(--text-light); text-decoration: line-through; }
 .price-save { font-size: 13px; color: var(--sage); font-weight: 600; }
 
+.stock-urgency {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c0392b;
+  margin-bottom: 16px;
+
+  .urgency-dot {
+    width: 7px;
+    height: 7px;
+    background: #c0392b;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
 .detail-desc {
   font-size: 15px;
   color: var(--text-light);
@@ -101,7 +125,9 @@
   margin-bottom: 24px;
 
   label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -111,6 +137,24 @@
   }
 
   .selected-val { text-transform: none; font-weight: 400; color: var(--text); letter-spacing: 0; }
+}
+
+.size-guide-link {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--rose-gold);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+  transition: color 0.2s;
+  &:hover { color: var(--dark); }
 }
 
 .size-grid {
@@ -203,6 +247,21 @@
   &:disabled { opacity: 0.6; cursor: default; }
 }
 
+.delivery-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--ivory);
+  border-left: 3px solid var(--sage);
+
+  svg { flex-shrink: 0; color: var(--sage); }
+  strong { color: var(--dark); }
+}
+
 .detail-perks {
   display: flex;
   flex-direction: column;
@@ -235,4 +294,109 @@
 
     &:hover { background: var(--ivory); color: var(--dark); }
   }
+}
+
+// Size guide modal
+.size-guide-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.size-guide-modal {
+  background: var(--white);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slide-up 0.25s ease;
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid var(--border);
+
+    h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 500;
+      font-style: italic;
+      margin: 0;
+    }
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-light);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    &:hover { color: var(--dark); }
+  }
+
+  > div { padding: 20px 28px 28px; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-intro {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.size-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--ivory); }
+}
+
+.size-tip {
+  font-size: 12px;
+  color: var(--text-light);
+  font-style: italic;
+  line-height: 1.6;
 }

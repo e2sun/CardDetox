@@ -35,11 +35,19 @@
         <span *ngIf="product.isClearance" class="price-save">Save DT {{ (product.price - displayPrice) | number:'1.0-0' }}</span>
       </div>
 
+      <!-- Stock urgency -->
+      <div *ngIf="stockMessage" class="stock-urgency">
+        <span class="urgency-dot"></span>{{ stockMessage }}
+      </div>
+
       <p class="detail-desc">{{ product.description }}</p>
 
       <!-- Size selector -->
       <div *ngIf="product.sizes && product.sizes.length > 0" class="option-group">
-        <label>Size <span *ngIf="selectedSize" class="selected-val">— {{ selectedSize }}</span></label>
+        <label>
+          Size <span *ngIf="selectedSize" class="selected-val">— {{ selectedSize }}</span>
+          <button type="button" class="size-guide-link" (click)="showSizeGuide = true">Size Guide</button>
+        </label>
         <div class="size-grid">
           <button *ngFor="let size of product.sizes"
             [class.selected]="selectedSize === size"
@@ -77,17 +85,72 @@
         <span *ngIf="adding" class="spinner"></span>
       </button>
 
+      <!-- Delivery estimate -->
+      <div class="delivery-info">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Free shipping · Estimated delivery <strong>{{ deliveryRange }}</strong>
+      </div>
+
       <!-- Perks -->
       <div class="detail-perks">
-        <div class="perk-item"><span>🌿</span> Earn tokens on purchase</div>
-        <div class="perk-item"><span>✨</span> Free fake shipping, always</div>
-        <div class="perk-item"><span>💛</span> 100% imaginary, 100% satisfying</div>
+        <div class="perk-item"><span>↩</span> Easy 30-day returns</div>
+        <div class="perk-item"><span>🔒</span> Secure checkout</div>
+        <div class="perk-item"><span>🌿</span> Earn tokens on every purchase</div>
       </div>
 
       <!-- Tags -->
       <div *ngIf="product.tags && product.tags.length" class="detail-tags">
         <a *ngFor="let tag of product.tags" routerLink="/shop" [queryParams]="{q: tag}" class="tag">{{ tag }}</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Size Guide Modal -->
+<div *ngIf="showSizeGuide" class="size-guide-overlay" (click)="showSizeGuide = false">
+  <div class="size-guide-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Size Guide</h3>
+      <button class="modal-close" (click)="showSizeGuide = false">✕</button>
+    </div>
+
+    <div *ngIf="isClothing">
+      <p class="modal-intro">All measurements are in inches. Measure over your fullest points.</p>
+      <table class="size-table">
+        <thead><tr><th>Size</th><th>Bust</th><th>Waist</th><th>Hips</th></tr></thead>
+        <tbody>
+          <tr><td>XS</td><td>32"</td><td>25"</td><td>35"</td></tr>
+          <tr><td>S</td><td>34"</td><td>27"</td><td>37"</td></tr>
+          <tr><td>M</td><td>36"</td><td>29"</td><td>39"</td></tr>
+          <tr><td>L</td><td>38"</td><td>31"</td><td>41"</td></tr>
+          <tr><td>XL</td><td>40"</td><td>33"</td><td>43"</td></tr>
+          <tr><td>XXL</td><td>42"</td><td>35"</td><td>45"</td></tr>
+        </tbody>
+      </table>
+      <p class="size-tip">Between sizes? We recommend sizing up for a relaxed fit or down for a more fitted look.</p>
+    </div>
+
+    <div *ngIf="isShoes">
+      <p class="modal-intro">All our shoes are true to European sizing.</p>
+      <table class="size-table">
+        <thead><tr><th>EU</th><th>UK</th><th>US</th><th>Foot Length</th></tr></thead>
+        <tbody>
+          <tr><td>35</td><td>2.5</td><td>5</td><td>22 cm</td></tr>
+          <tr><td>36</td><td>3.5</td><td>6</td><td>23 cm</td></tr>
+          <tr><td>37</td><td>4</td><td>6.5</td><td>23.5 cm</td></tr>
+          <tr><td>38</td><td>5</td><td>7.5</td><td>24.5 cm</td></tr>
+          <tr><td>39</td><td>6</td><td>8.5</td><td>25 cm</td></tr>
+          <tr><td>40</td><td>6.5</td><td>9</td><td>25.5 cm</td></tr>
+          <tr><td>41</td><td>7.5</td><td>10</td><td>26.5 cm</td></tr>
+          <tr><td>42</td><td>8</td><td>10.5</td><td>27 cm</td></tr>
+        </tbody>
+      </table>
+      <p class="size-tip">If you're between sizes, we recommend going up half a size.</p>
+    </div>
+
+    <div *ngIf="!isClothing && !isShoes">
+      <p class="modal-intro">This is a one-size or universal fit item.</p>
+      <p class="size-tip">Refer to the product description for specific measurements or dimensions.</p>
     </div>
   </div>
 </div>

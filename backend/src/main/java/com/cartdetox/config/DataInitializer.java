@@ -4,11 +4,22 @@ import com.cartdetox.model.Product;
 import com.cartdetox.model.Reward;
 import com.cartdetox.repository.ProductRepository;
 import com.cartdetox.repository.RewardRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -17,117 +28,157 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final RewardRepository rewardRepository;
 
-    private static final String IMG = "https://images.unsplash.com/photo-";
-    private static final String SRC = "https://source.unsplash.com/featured/600x800/?";
+    // Set this in Railway → Variables (UNSPLASH_ACCESS_KEY). Blank = use fallback images only.
+    @Value("${UNSPLASH_ACCESS_KEY:}")
+    private String unsplashAccessKey;
+
+    // Marker appended to every image URL this code sets, so we only fetch each product once.
+    private static final String SEEDED_MARKER = "seeded=v2";
+
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(8))
+            .build();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void run(String... args) {
         if (productRepository.count() == 0) {
             seedProducts();
-        } else {
-            refreshImages();
         }
         if (rewardRepository.count() == 0) {
             seedRewards();
         }
+        ensureImagesAndStock();
     }
 
-    private void refreshImages() {
-        java.util.Map<String, String> imgs = new java.util.HashMap<>();
-        // Clothing - Dresses (keyword-based for guaranteed match)
-        imgs.put("Sundew Silk Slip Dress",      SRC + "silk,slip,dress,sage&sig=1");
-        imgs.put("Midnight Wrap Dress",         SRC + "navy,wrap,dress,elegant&sig=2");
-        imgs.put("Garden Party Midi Dress",     IMG + "1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Linen Cloud Dress",           SRC + "linen,shirt,dress,white,casual&sig=4");
-        imgs.put("Velvet Reverie Dress",        SRC + "velvet,dress,evening,plum&sig=5");
-        // Clothing - Tops
-        imgs.put("Ivory Silk Camisole",         SRC + "silk,camisole,ivory,spaghetti&sig=6");
-        imgs.put("Linen Off-Shoulder Top",      SRC + "off,shoulder,linen,top&sig=7");
-        imgs.put("Breton Stripe Tee",           SRC + "stripe,breton,sailor,tshirt&sig=8");
-        imgs.put("Ribbed Knit Tank",            SRC + "ribbed,knit,tank,top&sig=9");
-        imgs.put("Cashmere Crop Pullover",      SRC + "cashmere,sweater,crop,cozy&sig=10");
-        // Clothing - Bottoms
-        imgs.put("High-Rise Wide Leg Trousers", SRC + "wide,leg,trousers,tailored&sig=11");
-        imgs.put("Vintage Wide Leg Denim",      IMG + "1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Sage Pleated Midi Skirt",     SRC + "pleated,midi,skirt,satin&sig=13");
-        imgs.put("Linen Mini Skirt",            SRC + "linen,mini,skirt,summer&sig=14");
-        // Clothing - Outerwear
-        imgs.put("Cashmere Cocoon Coat",        SRC + "camel,coat,oversized,wool&sig=15");
-        imgs.put("Velvet Blazer",               SRC + "velvet,blazer,burgundy&sig=16");
-        imgs.put("Classic Trench Coat",         IMG + "1488161628813-04466f872be2?auto=format&fit=crop&w=600&h=700");
-        // Accessories - Bags
-        imgs.put("Structured Woven Tote",       SRC + "leather,tote,bag,structured&sig=18");
-        imgs.put("Mini Crescent Bag",           SRC + "mini,crescent,handbag,leather&sig=19");
-        imgs.put("Slouchy Hobo Bag",            SRC + "hobo,shoulder,bag,cognac&sig=20");
-        imgs.put("Beaded Evening Clutch",       SRC + "beaded,clutch,evening,bag&sig=21");
-        imgs.put("Bamboo Handle Bag",           IMG + "1584917865442-de89df76afd3?auto=format&fit=crop&w=600&h=700");
-        // Accessories - Jewelry
-        imgs.put("Oversized Gold Hoops",        SRC + "gold,hoop,earrings&sig=23");
-        imgs.put("Pearl Pendant Necklace",      SRC + "pearl,pendant,necklace,gold&sig=24");
-        imgs.put("Stacking Rings Set",          SRC + "stacking,rings,gold,delicate&sig=25");
-        imgs.put("Gold Charm Bracelet",         SRC + "charm,bracelet,gold,dainty&sig=26");
-        imgs.put("Crystal Drop Earrings",       SRC + "crystal,drop,earrings,glamour&sig=27");
-        imgs.put("Layered Chain Necklace",      SRC + "layered,chain,necklace,gold&sig=28");
-        // Accessories - Other
-        imgs.put("Vintage Print Silk Scarf",    SRC + "silk,scarf,vintage,print&sig=29");
-        imgs.put("Tortoise Shell Sunglasses",   SRC + "tortoise,sunglasses,oversized&sig=30");
-        // Shoes
-        imgs.put("Square Toe Block Heel",       SRC + "block,heel,mule,shoes&sig=31");
-        imgs.put("Strappy Kitten Heel",         SRC + "strappy,kitten,heel,sandal&sig=32");
-        imgs.put("Platform Ankle Boot",         SRC + "platform,ankle,boot,leather&sig=33");
-        imgs.put("Suede Knee-High Boot",        SRC + "suede,knee,high,boot&sig=34");
-        imgs.put("Leather Chelsea Boot",        SRC + "chelsea,boot,leather,classic&sig=35");
-        imgs.put("Platform White Sneaker",      IMG + "1542291026-7eec264c27ff?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Pointed Ballet Flat",         SRC + "ballet,flat,pointed,shoes&sig=37");
-        imgs.put("Jute Wedge Espadrille",       SRC + "espadrille,wedge,jute,summer&sig=38");
-        // Lifestyle
-        imgs.put("Amber & Vanilla Candle",      IMG + "1608181831718-c9d180d1b42c?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Forest Walk Candle",          IMG + "1602874801006-a7ceb9e4c67e?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Washed Linen Throw",          SRC + "linen,throw,blanket,bed&sig=41");
-        imgs.put("Rattan Arch Mirror",          IMG + "1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Dried Floral Arrangement",    SRC + "dried,pampas,flowers,vase&sig=43");
-        imgs.put("Pressed Flower Journal",      SRC + "journal,notebook,flowers,writing&sig=44");
-        imgs.put("Ceramic Mug Duo",             IMG + "1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Natural Rubber Yoga Mat",     IMG + "1599901860904-17e6ed7083a0?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Rose Quartz Roller Set",      SRC + "rose,quartz,roller,gua,sha,beauty&sig=47");
-        // Beauty
-        imgs.put("Hyaluronic Glow Serum",       SRC + "serum,skincare,bottle,dropper&sig=48");
-        imgs.put("Botanical Rose Toner",        SRC + "toner,rose,skincare,bottle&sig=49");
-        imgs.put("Kaolin Clay Face Mask",       SRC + "face,mask,clay,skincare,jar&sig=50");
-        imgs.put("Vitamin C Brightening Cream", SRC + "moisturiser,cream,skincare,jar&sig=51");
-        imgs.put("Golden Hour Eau de Parfum",   IMG + "1541643600914-78b084683702?auto=format&fit=crop&w=600&h=700");
-        imgs.put("Garden Notes Perfume",        SRC + "perfume,bottle,floral,fragrance&sig=53");
-        imgs.put("Tinted Lip Treatment",        SRC + "lip,balm,gloss,lipstick,beauty&sig=54");
-        imgs.put("Illuminating Setting Powder", SRC + "makeup,powder,compact,beauty&sig=55");
+    // ---------------------------------------------------------------------
+    // IMAGE + STOCK REFRESH
+    // ---------------------------------------------------------------------
+
+    private void ensureImagesAndStock() {
+        boolean keyConfigured = unsplashAccessKey != null && !unsplashAccessKey.isBlank();
 
         // Low stock counts — show urgency on clearance + select items
-        java.util.Map<String, Integer> stock = new java.util.HashMap<>();
-        stock.put("Velvet Reverie Dress", 2);
-        stock.put("Cashmere Crop Pullover", 3);
-        stock.put("Linen Mini Skirt", 2);
-        stock.put("Classic Trench Coat", 3);
-        stock.put("Beaded Evening Clutch", 2);
-        stock.put("Crystal Drop Earrings", 4);
-        stock.put("Tortoise Shell Sunglasses", 3);
-        stock.put("Suede Knee-High Boot", 2);
-        stock.put("Jute Wedge Espadrille", 4);
-        stock.put("Rose Quartz Roller Set", 3);
-        stock.put("Kaolin Clay Face Mask", 5);
-        stock.put("Illuminating Setting Powder", 4);
-        stock.put("Rattan Arch Mirror", 2);
-        stock.put("Cashmere Cocoon Coat", 4);
-        stock.put("Garden Party Midi Dress", 5);
-        stock.put("Bamboo Handle Bag", 3);
+        Map<String, Integer> stock = Map.ofEntries(
+            Map.entry("Velvet Reverie Dress", 2),
+            Map.entry("Cashmere Crop Pullover", 3),
+            Map.entry("Linen Mini Skirt", 2),
+            Map.entry("Classic Trench Coat", 3),
+            Map.entry("Beaded Evening Clutch", 2),
+            Map.entry("Crystal Drop Earrings", 4),
+            Map.entry("Tortoise Shell Sunglasses", 3),
+            Map.entry("Suede Knee-High Boot", 2),
+            Map.entry("Jute Wedge Espadrille", 4),
+            Map.entry("Rose Quartz Roller Set", 3),
+            Map.entry("Kaolin Clay Face Mask", 5),
+            Map.entry("Illuminating Setting Powder", 4),
+            Map.entry("Rattan Arch Mirror", 2),
+            Map.entry("Cashmere Cocoon Coat", 4),
+            Map.entry("Garden Party Midi Dress", 5),
+            Map.entry("Bamboo Handle Bag", 3)
+        );
 
-        java.util.List<Product> products = productRepository.findAll();
-        products.forEach(p -> {
-            String url = imgs.get(p.getName());
-            if (url != null) p.setImageUrl(url);
+        List<Product> products = productRepository.findAll();
+        for (Product p : products) {
+            // Apply urgency stock counts.
             Integer count = stock.get(p.getName());
             if (count != null) p.setStockCount(count);
-        });
+
+            // Only fetch an image if this product doesn't already have one we set.
+            String current = p.getImageUrl();
+            boolean alreadyDone = current != null && current.contains(SEEDED_MARKER);
+            if (alreadyDone) continue;
+
+            String query = buildQuery(p);
+            String url = keyConfigured ? fetchUnsplash(query) : null;
+
+            if (url != null) {
+                // Unsplash hit — premium photo, mark as done so we never re-spend quota on it.
+                p.setImageUrl(withMarker(url));
+            } else {
+                // Fallback: keyword image that always loads + matches the category.
+                String fallback = fallbackUrl(p);
+                if (keyConfigured) {
+                    // Key exists but this fetch failed (e.g. hourly rate limit). Leave it
+                    // UNMARKED so a later restart upgrades it to a real Unsplash photo.
+                    p.setImageUrl(fallback);
+                } else {
+                    // No key at all — fallback is final, mark done so we don't loop.
+                    p.setImageUrl(withMarker(fallback));
+                }
+            }
+        }
         productRepository.saveAll(products);
     }
+
+    /** Builds a tight search query from the product's tags so the photo matches. */
+    private String buildQuery(Product p) {
+        List<String> tags = p.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            return String.join(" ", tags.subList(0, Math.min(3, tags.size())));
+        }
+        // Fallback to subcategory/category if a product somehow has no tags.
+        if (p.getSubcategory() != null && !p.getSubcategory().isBlank()) return p.getSubcategory();
+        return p.getCategory() == null ? "product" : p.getCategory();
+    }
+
+    /** Queries the Unsplash Search API and returns a 600x700 portrait image URL, or null on failure. */
+    private String fetchUnsplash(String query) {
+        try {
+            String q = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            String endpoint = "https://api.unsplash.com/search/photos"
+                    + "?query=" + q
+                    + "&per_page=1"
+                    + "&orientation=portrait"
+                    + "&content_filter=high";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Accept-Version", "v1")
+                    .header("Authorization", "Client-ID " + unsplashAccessKey)
+                    .timeout(Duration.ofSeconds(8))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> resp = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                System.out.println("[DataInitializer] Unsplash " + resp.statusCode() + " for query: " + query);
+                return null;
+            }
+
+            JsonNode results = mapper.readTree(resp.body()).path("results");
+            if (!results.isArray() || results.isEmpty()) return null;
+
+            String raw = results.get(0).path("urls").path("raw").asText(null);
+            if (raw == null || raw.isBlank()) return null;
+
+            // Size it to the 600x700 portrait the storefront expects.
+            String sep = raw.contains("?") ? "&" : "?";
+            return raw + sep + "auto=format&fit=crop&w=600&h=700";
+        } catch (Exception e) {
+            System.out.println("[DataInitializer] Unsplash fetch failed for '" + query + "': " + e.getMessage());
+            return null;
+        }
+    }
+
+    /** Always-available keyword image, stable per product via the lock seed. */
+    private String fallbackUrl(Product p) {
+        String keyword = (p.getSubcategory() != null && !p.getSubcategory().isBlank())
+                ? p.getSubcategory()
+                : (p.getCategory() == null ? "fashion" : p.getCategory());
+        keyword = keyword.toLowerCase().replaceAll("[^a-z]", "");
+        long lock = Math.abs(p.getName().hashCode()) % 100000;
+        return "https://loremflickr.com/600/700/" + keyword + "?lock=" + lock;
+    }
+
+    private String withMarker(String url) {
+        String sep = url.contains("?") ? "&" : "?";
+        return url + sep + SEEDED_MARKER;
+    }
+
+    // ---------------------------------------------------------------------
+    // SEED DATA  (imageUrl values here are placeholders; ensureImagesAndStock overwrites them)
+    // ---------------------------------------------------------------------
 
     private void seedProducts() {
         List<Product> products = List.of(
@@ -135,384 +186,329 @@ public class DataInitializer implements CommandLineRunner {
             Product.builder()
                 .name("Sundew Silk Slip Dress").category("Clothing").subcategory("Dresses")
                 .price(89.0).description("A dreamy sage-toned silk-blend slip dress with delicate adjustable straps and a bias-cut silhouette that moves like water. Effortless from brunch to dinner.")
-                .imageUrl(IMG + "1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Sage","Ivory","Blush"))
                 .tags(List.of("slip dress","silk","summer","elegant")).rating(4.8).reviewCount(234).build(),
 
             Product.builder()
                 .name("Midnight Wrap Dress").category("Clothing").subcategory("Dresses")
                 .price(128.0).description("A sophisticated navy wrap dress with a plunging V-neckline, flutter sleeves, and a self-tie waist. The kind of dress that makes every entrance unforgettable.")
-                .imageUrl(IMG + "1496747611176-843222e1e57c?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL","XXL")).colors(List.of("Navy","Burgundy","Forest"))
                 .tags(List.of("wrap dress","evening","date night")).rating(4.7).reviewCount(189).build(),
 
             Product.builder()
                 .name("Garden Party Midi Dress").category("Clothing").subcategory("Dresses")
                 .price(155.0).description("An enchanting floral midi dress crafted from lightweight chiffon. With its smocked bodice, puff sleeves, and flowing skirt, this is the dress for golden-hour moments.")
-                .imageUrl(IMG + "1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L")).colors(List.of("Floral Multi","Lavender","Peach"))
                 .tags(List.of("midi dress","floral","chiffon","garden")).rating(4.9).reviewCount(312).build(),
 
             Product.builder()
                 .name("Linen Cloud Dress").category("Clothing").subcategory("Dresses")
                 .price(98.0).description("Relaxed and romantic, this 100% linen shirt dress features a relaxed fit, chest pockets, and a midi length. The epitome of effortless European summer style.")
-                .imageUrl(IMG + "1469334031218-e382a71b716b?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Natural Linen","White","Sky Blue"))
-                .tags(List.of("linen","casual","summer","comfortable")).rating(4.6).reviewCount(156).build(),
+                .tags(List.of("linen dress","casual","summer","comfortable")).rating(4.6).reviewCount(156).build(),
 
             Product.builder()
                 .name("Velvet Reverie Dress").category("Clothing").subcategory("Dresses")
                 .price(195.0).clearancePrice(145.0).isClearance(true)
                 .description("Luxuriously rich velvet in a deep plum hue. An off-shoulder neckline and fitted midi silhouette make this the ultimate cocktail dress for evenings that deserve to be remembered.")
-                .imageUrl(IMG + "1485968579580-b6d095142e6e?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L")).colors(List.of("Deep Plum","Midnight Black","Forest Green"))
-                .tags(List.of("velvet","cocktail","evening","off-shoulder")).rating(4.9).reviewCount(98).build(),
+                .tags(List.of("velvet dress","cocktail","evening","off-shoulder")).rating(4.9).reviewCount(98).build(),
 
             // === CLOTHING / TOPS ===
             Product.builder()
                 .name("Ivory Silk Camisole").category("Clothing").subcategory("Tops")
                 .price(72.0).description("Pure silk-charmeuse camisole with delicate lace trim and adjustable spaghetti straps. Layer it or wear it alone — either way, it's everything.")
-                .imageUrl(IMG + "1509631179647-0177331693ae?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Ivory","Champagne","Black","Blush"))
-                .tags(List.of("silk","camisole","layering","elegant")).rating(4.7).reviewCount(203).build(),
+                .tags(List.of("silk camisole","layering","elegant")).rating(4.7).reviewCount(203).build(),
 
             Product.builder()
                 .name("Linen Off-Shoulder Top").category("Clothing").subcategory("Tops")
                 .price(65.0).description("A breezy off-shoulder linen top with an elasticated neckline and relaxed fit. Pair with anything from wide-leg trousers to your favorite cutoffs.")
-                .imageUrl(IMG + "1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L")).colors(List.of("White","Sand","Terracotta"))
-                .tags(List.of("linen","off-shoulder","summer","casual")).rating(4.5).reviewCount(167).build(),
+                .tags(List.of("linen top","off-shoulder","summer")).rating(4.5).reviewCount(167).build(),
 
             Product.builder()
                 .name("Breton Stripe Tee").category("Clothing").subcategory("Tops")
                 .price(58.0).description("The iconic French sailor stripe, reimagined in the softest organic cotton. A wardrobe staple that never goes out of style — for good reason.")
-                .imageUrl(IMG + "1484327369686-b5b65e4ff9c2?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Navy Stripe","Black Stripe","Red Stripe"))
-                .tags(List.of("stripe","cotton","classic","French")).rating(4.8).reviewCount(445).build(),
+                .tags(List.of("striped shirt","cotton tee","classic")).rating(4.8).reviewCount(445).build(),
 
             Product.builder()
                 .name("Ribbed Knit Tank").category("Clothing").subcategory("Tops")
                 .price(48.0).description("A fitted ribbed knit tank with a subtle scoop neck. The kind of foundational piece that makes everything in your wardrobe work harder.")
-                .imageUrl(IMG + "1506152983158-b4a74a01c721?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Cream","Black","Camel","Sage"))
-                .tags(List.of("ribbed","knit","layering","basics")).rating(4.6).reviewCount(389).build(),
+                .tags(List.of("knit tank top","ribbed","basics")).rating(4.6).reviewCount(389).build(),
 
             Product.builder()
                 .name("Cashmere Crop Pullover").category("Clothing").subcategory("Tops")
                 .price(145.0).clearancePrice(98.0).isClearance(true)
                 .description("100% Grade-A cashmere in a relaxed cropped fit. It's the sweater you reach for on every cool morning — impossibly soft, effortlessly chic.")
-                .imageUrl(IMG + "1576566588028-4147f3842f27?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L")).colors(List.of("Oatmeal","Dusty Rose","Sky Blue","Sage"))
-                .tags(List.of("cashmere","sweater","luxury","cozy")).rating(4.9).reviewCount(211).build(),
+                .tags(List.of("cashmere sweater","knit","cozy")).rating(4.9).reviewCount(211).build(),
 
             // === CLOTHING / BOTTOMS ===
             Product.builder()
                 .name("High-Rise Wide Leg Trousers").category("Clothing").subcategory("Bottoms")
                 .price(115.0).description("Tailored to perfection with a high waist, wide leg, and invisible side zip. The kind of trousers that make you feel like you have your life entirely together.")
-                .imageUrl(IMG + "1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Chalk","Chocolate","Black","Cream"))
-                .tags(List.of("wide leg","tailored","trousers","elevated")).rating(4.7).reviewCount(178).build(),
+                .tags(List.of("wide leg trousers","tailored","elevated")).rating(4.7).reviewCount(178).build(),
 
             Product.builder()
                 .name("Vintage Wide Leg Denim").category("Clothing").subcategory("Bottoms")
                 .price(98.0).description("A vintage-wash wide leg jean in a flattering high-rise cut. Worn-in enough to look like a thrift find, structured enough to look intentional.")
-                .imageUrl(IMG + "1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("24","25","26","27","28","29","30","32")).colors(List.of("Light Wash","Mid Wash","Dark Indigo"))
-                .tags(List.of("denim","wide leg","vintage","jeans")).rating(4.8).reviewCount(523).build(),
+                .tags(List.of("denim jeans","wide leg","vintage")).rating(4.8).reviewCount(523).build(),
 
             Product.builder()
                 .name("Sage Pleated Midi Skirt").category("Clothing").subcategory("Bottoms")
                 .price(92.0).description("Flowing pleated satin midi skirt in the most flattering sage green. With its high waist and bias-cut hem, this skirt is pure movement.")
-                .imageUrl(IMG + "1618354691792-d1d42acfd860?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Sage","Champagne","Rose"))
-                .tags(List.of("pleated","midi","satin","skirt")).rating(4.7).reviewCount(142).build(),
+                .tags(List.of("pleated skirt","satin","midi")).rating(4.7).reviewCount(142).build(),
 
             Product.builder()
                 .name("Linen Mini Skirt").category("Clothing").subcategory("Bottoms")
                 .price(78.0).clearancePrice(55.0).isClearance(true)
                 .description("A lightweight linen mini skirt with a relaxed A-line silhouette and raw hem detail. Easy, breezy, and absolutely perfect for summer.")
-                .imageUrl(IMG + "1594938298603-f8b2f0f6c2af?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L")).colors(List.of("Natural","White","Clay"))
-                .tags(List.of("linen","mini","summer","casual")).rating(4.5).reviewCount(99).build(),
+                .tags(List.of("mini skirt","linen","summer")).rating(4.5).reviewCount(99).build(),
 
             // === CLOTHING / OUTERWEAR ===
             Product.builder()
                 .name("Cashmere Cocoon Coat").category("Clothing").subcategory("Outerwear")
                 .price(285.0).description("A luxurious oversized cocoon coat crafted from a cashmere-blend in warm camel. With its clean lines and single-button closure, this coat makes every outfit look intentional.")
-                .imageUrl(IMG + "1539533018447-50cce9a83e61?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS/S","M/L","XL/XXL")).colors(List.of("Camel","Ivory","Charcoal"))
-                .tags(List.of("coat","cashmere","outerwear","luxury")).rating(4.9).reviewCount(87).build(),
+                .tags(List.of("camel coat","cashmere","outerwear")).rating(4.9).reviewCount(87).build(),
 
             Product.builder()
                 .name("Velvet Blazer").category("Clothing").subcategory("Outerwear")
                 .price(178.0).description("A rich burgundy velvet blazer with a slim-fit silhouette, notched lapels, and satin lining. Dress it up or wear it with jeans — this blazer does the work for you.")
-                .imageUrl(IMG + "1552902865-b72c031ac5ea?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Burgundy","Midnight Blue","Forest Green"))
-                .tags(List.of("blazer","velvet","statement","elevated")).rating(4.8).reviewCount(134).build(),
+                .tags(List.of("velvet blazer","jacket","elevated")).rating(4.8).reviewCount(134).build(),
 
             Product.builder()
                 .name("Classic Trench Coat").category("Clothing").subcategory("Outerwear")
                 .price(245.0).clearancePrice(185.0).isClearance(true)
                 .description("The timeless trench, reimagined in a modern silhouette. A double-breasted closure, storm flaps, and belted waist create a coat that works for every season and every decade.")
-                .imageUrl(IMG + "1488161628813-04466f872be2?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("XS","S","M","L","XL")).colors(List.of("Camel","Black","Cream"))
-                .tags(List.of("trench","classic","outerwear","timeless")).rating(4.9).reviewCount(256).build(),
+                .tags(List.of("trench coat","classic","outerwear")).rating(4.9).reviewCount(256).build(),
 
             // === ACCESSORIES / BAGS ===
             Product.builder()
                 .name("Structured Woven Tote").category("Accessories").subcategory("Bags")
                 .price(158.0).description("A sophisticated structured tote handwoven from Italian leather. Spacious enough for your daily essentials with an interior zip pocket to keep you organised.")
-                .imageUrl(IMG + "1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&h=700")
-                .colors(List.of("Camel","Ivory","Black")).tags(List.of("tote","leather","structured","everyday")).rating(4.7).reviewCount(198).build(),
+                .colors(List.of("Camel","Ivory","Black")).tags(List.of("leather tote bag","structured","everyday")).rating(4.7).reviewCount(198).build(),
 
             Product.builder()
                 .name("Mini Crescent Bag").category("Accessories").subcategory("Bags")
                 .price(128.0).description("A sculptural mini crescent bag in buttery soft leather with a sleek top handle and optional crossbody strap. Small but perfectly formed.")
-                .imageUrl(IMG + "1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&h=700")
-                .colors(List.of("Blush","Cognac","Black","Ivory")).tags(List.of("mini","crescent","crossbody","cute")).rating(4.8).reviewCount(287).build(),
+                .colors(List.of("Blush","Cognac","Black","Ivory")).tags(List.of("crossbody bag","mini purse","leather")).rating(4.8).reviewCount(287).build(),
 
             Product.builder()
                 .name("Slouchy Hobo Bag").category("Accessories").subcategory("Bags")
                 .price(195.0).description("A relaxed hobo silhouette in the most gorgeous cognac leather. With a spacious interior and adjustable shoulder strap, this bag fits into every lifestyle.")
-                .imageUrl(IMG + "1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&h=700")
-                .colors(List.of("Cognac","Mushroom","Black")).tags(List.of("hobo","slouchy","leather","everyday")).rating(4.6).reviewCount(143).build(),
+                .colors(List.of("Cognac","Mushroom","Black")).tags(List.of("hobo handbag","leather bag","everyday")).rating(4.6).reviewCount(143).build(),
 
             Product.builder()
                 .name("Beaded Evening Clutch").category("Accessories").subcategory("Bags")
                 .price(88.0).clearancePrice(65.0).isClearance(true)
                 .description("A hand-beaded evening clutch that catches the light beautifully. With its gold chain strap and satin interior, this clutch transforms any outfit into an occasion.")
-                .imageUrl(IMG + "1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=600&h=700")
-                .colors(List.of("Gold","Silver","Pearl White")).tags(List.of("clutch","evening","beaded","formal")).rating(4.7).reviewCount(76).build(),
+                .colors(List.of("Gold","Silver","Pearl White")).tags(List.of("beaded clutch","evening bag","formal")).rating(4.7).reviewCount(76).build(),
 
             Product.builder()
                 .name("Bamboo Handle Bag").category("Accessories").subcategory("Bags")
                 .price(112.0).description("A sculptural bag with bamboo ring handles and a crisp ivory canvas body trimmed in tan leather. Effortlessly chic vacation energy year-round.")
-                .imageUrl(IMG + "1584917865442-de89df76afd3?auto=format&fit=crop&w=600&h=700")
-                .colors(List.of("Ivory/Tan","Black/Natural")).tags(List.of("bamboo","canvas","summer","vacation")).rating(4.5).reviewCount(112).build(),
+                .colors(List.of("Ivory/Tan","Black/Natural")).tags(List.of("bamboo handbag","canvas bag","summer")).rating(4.5).reviewCount(112).build(),
 
             // === ACCESSORIES / JEWELRY ===
             Product.builder()
                 .name("Oversized Gold Hoops").category("Accessories").subcategory("Jewelry")
                 .price(48.0).description("Statement-making 18K gold-plated hoop earrings in a generous size that frames the face beautifully. The one earring that goes with everything.")
-                .imageUrl(IMG + "1506630268652-29e6f32e9e04?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("earrings","gold","hoops","statement")).rating(4.8).reviewCount(567).build(),
+                .tags(List.of("gold hoop earrings","jewelry","statement")).rating(4.8).reviewCount(567).build(),
 
             Product.builder()
                 .name("Pearl Pendant Necklace").category("Accessories").subcategory("Jewelry")
                 .price(68.0).description("A single freshwater pearl suspended from a delicate 18K gold-plated chain. Minimal, meaningful, and endlessly wearable.")
-                .imageUrl(IMG + "1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("necklace","pearl","minimal","elegant")).rating(4.9).reviewCount(389).build(),
+                .tags(List.of("pearl necklace","pendant","jewelry")).rating(4.9).reviewCount(389).build(),
 
             Product.builder()
                 .name("Stacking Rings Set").category("Accessories").subcategory("Jewelry")
                 .price(85.0).description("A curated set of five delicate gold rings — twisted bands, thin stackers, and one with a tiny gemstone detail. Mix, match, stack as you please.")
-                .imageUrl(IMG + "1611085583191-a3b181a88401?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("rings","stacking","gold","set")).rating(4.7).reviewCount(234).build(),
+                .tags(List.of("gold rings","stacking jewelry","set")).rating(4.7).reviewCount(234).build(),
 
             Product.builder()
                 .name("Gold Charm Bracelet").category("Accessories").subcategory("Jewelry")
                 .price(95.0).description("A dainty gold chain bracelet adorned with five hand-selected charms — a crescent moon, butterfly, star, heart, and flower. Wear alone or layer generously.")
-                .imageUrl(IMG + "1594938538-bac1e5a4a52d?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("bracelet","charm","gold","layering")).rating(4.8).reviewCount(178).build(),
+                .tags(List.of("charm bracelet","gold jewelry","dainty")).rating(4.8).reviewCount(178).build(),
 
             Product.builder()
                 .name("Crystal Drop Earrings").category("Accessories").subcategory("Jewelry")
                 .price(72.0).clearancePrice(52.0).isClearance(true)
                 .description("Elongated crystal drop earrings that catch the light with every movement. A touch of vintage glamour for the modern woman.")
-                .imageUrl(IMG + "1583743814966-84149a3f1f25?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("earrings","crystal","drop","glamour")).rating(4.6).reviewCount(123).build(),
+                .tags(List.of("crystal earrings","drop earrings","glamour")).rating(4.6).reviewCount(123).build(),
 
             Product.builder()
                 .name("Layered Chain Necklace").category("Accessories").subcategory("Jewelry")
                 .price(58.0).description("Three delicate 18K gold-plated chains designed to be worn together or separately. The pre-layered look, already perfected for you.")
-                .imageUrl(IMG + "1576868872538-16a32c0c6e4a?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("necklace","layered","chain","gold")).rating(4.7).reviewCount(301).build(),
+                .tags(List.of("layered necklace","gold chain","jewelry")).rating(4.7).reviewCount(301).build(),
 
             // === ACCESSORIES / OTHER ===
             Product.builder()
                 .name("Vintage Print Silk Scarf").category("Accessories").subcategory("Scarves")
                 .price(78.0).description("A 90cm square silk scarf featuring an original vintage botanical print. Wear it in your hair, around your neck, or tied to your bag handle.")
-                .imageUrl(IMG + "1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("scarf","silk","vintage","versatile")).rating(4.8).reviewCount(167).build(),
+                .tags(List.of("silk scarf","vintage print","accessory")).rating(4.8).reviewCount(167).build(),
 
             Product.builder()
                 .name("Tortoise Shell Sunglasses").category("Accessories").subcategory("Eyewear")
                 .price(88.0).clearancePrice(68.0).isClearance(true)
                 .description("Oversized tortoise-shell acetate frames with UV400 lenses. The kind of sunglasses that make every day feel like you're in a film.")
-                .imageUrl(IMG + "1553361371-9b22f78e8b1d?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("sunglasses","tortoise","oversized","summer")).rating(4.7).reviewCount(289).build(),
+                .tags(List.of("sunglasses","tortoise shell","oversized")).rating(4.7).reviewCount(289).build(),
 
             // === SHOES ===
             Product.builder()
                 .name("Square Toe Block Heel").category("Shoes").subcategory("Heels")
                 .price(148.0).description("A sculptural block heel mule with a squared toe, minimal straps, and a comfortable 3-inch heel. The heel that looks high fashion but feels like a walk in the park.")
-                .imageUrl(IMG + "1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40","41")).colors(List.of("Camel","Black","Ivory","Nude"))
-                .tags(List.of("heels","block heel","mule","elevated")).rating(4.6).reviewCount(187).build(),
+                .tags(List.of("block heel shoes","mule","heels")).rating(4.6).reviewCount(187).build(),
 
             Product.builder()
                 .name("Strappy Kitten Heel").category("Shoes").subcategory("Heels")
                 .price(165.0).description("A barely-there strappy sandal with a delicate kitten heel. Crafted from soft Italian leather with adjustable ankle strap — the definition of understated elegance.")
-                .imageUrl(IMG + "1554284126-aa88f22d8b74?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40")).colors(List.of("Gold","Silver","Nude","Black"))
-                .tags(List.of("sandal","kitten heel","strappy","evening")).rating(4.8).reviewCount(143).build(),
+                .tags(List.of("strappy heel sandal","kitten heel","shoes")).rating(4.8).reviewCount(143).build(),
 
             Product.builder()
                 .name("Platform Ankle Boot").category("Shoes").subcategory("Boots")
                 .price(215.0).description("A chunky platform ankle boot in glossy leather with an inside zip. The boot that gives every outfit a cool, intentional edge.")
-                .imageUrl(IMG + "1603487742131-4160ec999306?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40","41")).colors(List.of("Black","White","Tan"))
-                .tags(List.of("boots","platform","ankle","edgy")).rating(4.7).reviewCount(198).build(),
+                .tags(List.of("ankle boots","platform","leather")).rating(4.7).reviewCount(198).build(),
 
             Product.builder()
                 .name("Suede Knee-High Boot").category("Shoes").subcategory("Boots")
                 .price(285.0).clearancePrice(218.0).isClearance(true)
                 .description("Slouchy suede knee-high boots with a low block heel. In a luxurious mocha suede, these boots are the autumnal dream every wardrobe deserves.")
-                .imageUrl(IMG + "1528701800489-c560a8e9d0e6?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40")).colors(List.of("Mocha","Cognac","Black"))
-                .tags(List.of("boots","knee-high","suede","autumn")).rating(4.9).reviewCount(89).build(),
+                .tags(List.of("knee high boots","suede","autumn")).rating(4.9).reviewCount(89).build(),
 
             Product.builder()
                 .name("Leather Chelsea Boot").category("Shoes").subcategory("Boots")
                 .price(198.0).description("The quintessential Chelsea boot in polished grain leather with elastic gussets and stacked heel. A forever boot that only looks better with age.")
-                .imageUrl(IMG + "1588258219511-64eb629cb833?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40","41")).colors(List.of("Black","Tan","Oxblood"))
-                .tags(List.of("chelsea","leather","classic","boots")).rating(4.8).reviewCount(312).build(),
+                .tags(List.of("chelsea boots","leather","classic")).rating(4.8).reviewCount(312).build(),
 
             Product.builder()
                 .name("Platform White Sneaker").category("Shoes").subcategory("Casual")
                 .price(125.0).description("A 90s-inspired platform sneaker in pristine white leather. Chunky, cool, and surprisingly versatile — pairs with everything from mini dresses to tailored trousers.")
-                .imageUrl(IMG + "1542291026-7eec264c27ff?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40","41","42")).colors(List.of("White","Cream","Triple Black"))
-                .tags(List.of("sneaker","platform","white","casual")).rating(4.7).reviewCount(456).build(),
+                .tags(List.of("white sneakers","platform","casual shoes")).rating(4.7).reviewCount(456).build(),
 
             Product.builder()
                 .name("Pointed Ballet Flat").category("Shoes").subcategory("Casual")
                 .price(98.0).description("The Parisian ballet flat in supple leather with a delicate pointed toe. Slip on, go anywhere — the shoe that makes every outfit look like it was planned.")
-                .imageUrl(IMG + "1554220235-e9c99e51afe5?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40","41")).colors(List.of("Black","Ballet Pink","Camel","Navy"))
-                .tags(List.of("ballet flat","pointed","minimal","classic")).rating(4.8).reviewCount(378).build(),
+                .tags(List.of("ballet flats","pointed shoes","classic")).rating(4.8).reviewCount(378).build(),
 
             Product.builder()
                 .name("Jute Wedge Espadrille").category("Shoes").subcategory("Casual")
                 .price(88.0).clearancePrice(65.0).isClearance(true)
                 .description("A classic espadrille wedge with a natural jute sole and canvas upper. The summer shoe that feels like sunshine bottled into footwear.")
-                .imageUrl(IMG + "1536959769671-37b3c9b1765b?auto=format&fit=crop&w=600&h=700")
                 .sizes(List.of("35","36","37","38","39","40")).colors(List.of("Natural","Navy Stripe","Terracotta"))
-                .tags(List.of("espadrille","wedge","summer","vacation")).rating(4.6).reviewCount(134).build(),
+                .tags(List.of("espadrille wedge","summer shoes","sandals")).rating(4.6).reviewCount(134).build(),
 
             // === LIFESTYLE / CANDLES ===
             Product.builder()
                 .name("Amber & Vanilla Candle").category("Lifestyle").subcategory("Candles")
                 .price(38.0).description("Hand-poured in small batches using a coconut-soy wax blend. Notes of warm amber, spiced vanilla, and sandalwood create a cocooning, golden-hour atmosphere.")
-                .imageUrl(IMG + "1608181831718-c9d180d1b42c?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("candle","amber","vanilla","cozy")).rating(4.9).reviewCount(445).build(),
+                .tags(List.of("scented candle","amber","cozy")).rating(4.9).reviewCount(445).build(),
 
             Product.builder()
                 .name("Forest Walk Candle").category("Lifestyle").subcategory("Candles")
                 .price(42.0).description("An evocative candle that captures the feeling of morning light through a pine forest. Notes of cedarwood, moss, and bergamot. 60-hour burn time.")
-                .imageUrl(IMG + "1602874801006-a7ceb9e4c67e?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("candle","cedar","forest","fresh")).rating(4.8).reviewCount(312).build(),
+                .tags(List.of("scented candle","cedar","home")).rating(4.8).reviewCount(312).build(),
 
             // === LIFESTYLE / HOME ===
             Product.builder()
                 .name("Washed Linen Throw").category("Lifestyle").subcategory("Home")
                 .price(85.0).description("A generously-sized throw in stone-washed linen. Impossibly soft, perfectly rumpled, and looks beautiful draped over literally anything.")
-                .imageUrl(IMG + "1578662996442-48f60103fc96?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("throw","linen","home","cozy")).rating(4.7).reviewCount(189).build(),
+                .tags(List.of("linen throw blanket","home decor","cozy")).rating(4.7).reviewCount(189).build(),
 
             Product.builder()
                 .name("Rattan Arch Mirror").category("Lifestyle").subcategory("Home")
                 .price(128.0).clearancePrice(95.0).isClearance(true)
                 .description("A floor-to-wall arch mirror framed in hand-woven natural rattan. Makes any space feel larger, warmer, and more curated. The interior designer's secret weapon.")
-                .imageUrl(IMG + "1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("mirror","rattan","boho","home decor")).rating(4.8).reviewCount(98).build(),
+                .tags(List.of("arch mirror","rattan home decor","mirror")).rating(4.8).reviewCount(98).build(),
 
             Product.builder()
                 .name("Dried Floral Arrangement").category("Lifestyle").subcategory("Home")
                 .price(55.0).description("A curated arrangement of dried pampas grass, lunaria, and preserved roses in a vintage terracotta vase. No watering required — everlasting beauty.")
-                .imageUrl(IMG + "1490750967868-88df5691cc98?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("dried flowers","pampas","home","decor")).rating(4.6).reviewCount(156).build(),
+                .tags(List.of("dried flowers","pampas grass","home decor")).rating(4.6).reviewCount(156).build(),
 
             // === LIFESTYLE / STATIONERY ===
             Product.builder()
                 .name("Pressed Flower Journal").category("Lifestyle").subcategory("Stationery")
                 .price(32.0).description("A handmade journal with a pressed wildflower cover, 200 pages of thick cream-toned paper, and a ribbon bookmark. Your most beautiful thoughts deserve a beautiful home.")
-                .imageUrl(IMG + "1531346878377-a5be20888e57?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("journal","stationery","handmade","writing")).rating(4.9).reviewCount(234).build(),
+                .tags(List.of("journal notebook","stationery","writing")).rating(4.9).reviewCount(234).build(),
 
             Product.builder()
                 .name("Ceramic Mug Duo").category("Lifestyle").subcategory("Stationery")
                 .price(58.0).description("A set of two hand-thrown matte ceramic mugs in a speckled sage glaze. Because your morning ritual deserves vessels that make you smile before the first sip.")
-                .imageUrl(IMG + "1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("mug","ceramic","kitchen","gift")).rating(4.8).reviewCount(312).build(),
+                .tags(List.of("ceramic mug","coffee cup","kitchen")).rating(4.8).reviewCount(312).build(),
 
             // === LIFESTYLE / WELLNESS ===
             Product.builder()
                 .name("Natural Rubber Yoga Mat").category("Lifestyle").subcategory("Wellness")
                 .price(88.0).description("A 4mm natural rubber yoga mat with an artisanal tie-dye print in sage and ivory. Non-slip, eco-friendly, and beautiful enough to leave out as a decorative piece.")
-                .imageUrl(IMG + "1599901860904-17e6ed7083a0?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("yoga","wellness","mat","eco")).rating(4.7).reviewCount(178).build(),
+                .tags(List.of("yoga mat","wellness","fitness")).rating(4.7).reviewCount(178).build(),
 
             Product.builder()
                 .name("Rose Quartz Roller Set").category("Lifestyle").subcategory("Wellness")
                 .price(65.0).clearancePrice(48.0).isClearance(true)
                 .description("A curated facial massage set with a genuine rose quartz roller and carved gua sha tool. Depuff, sculpt, and take five minutes that are entirely yours.")
-                .imageUrl(IMG + "1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("gua sha","rose quartz","wellness","skincare")).rating(4.8).reviewCount(456).build(),
+                .tags(List.of("jade roller gua sha","rose quartz","skincare tool")).rating(4.8).reviewCount(456).build(),
 
             // === BEAUTY / SKINCARE ===
             Product.builder()
                 .name("Hyaluronic Glow Serum").category("Beauty").subcategory("Skincare")
                 .price(72.0).description("A lightweight serum with triple-weight hyaluronic acid and vitamin B5 that plumps, hydrates, and gives your skin a lit-from-within glow. 30ml, 60-day supply.")
-                .imageUrl(IMG + "1556228578-8c89e6adf883?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("serum","hyaluronic","glow","skincare")).rating(4.9).reviewCount(567).build(),
+                .tags(List.of("face serum","skincare bottle","glow")).rating(4.9).reviewCount(567).build(),
 
             Product.builder()
                 .name("Botanical Rose Toner").category("Beauty").subcategory("Skincare")
                 .price(45.0).description("An alcohol-free facial toner with Bulgarian rose water, niacinamide, and green tea extract. Balances, brightens, and makes your skin feel like it just had a vacation.")
-                .imageUrl(IMG + "1599305445671-ac291c95aaa9?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("toner","rose","brightening","skincare")).rating(4.8).reviewCount(389).build(),
+                .tags(List.of("facial toner","skincare","rose")).rating(4.8).reviewCount(389).build(),
 
             Product.builder()
                 .name("Kaolin Clay Face Mask").category("Beauty").subcategory("Skincare")
                 .price(38.0).clearancePrice(28.0).isClearance(true)
                 .description("A gentle kaolin clay mask enriched with oat extract and chamomile. Draws out impurities while calming irritation — the Sunday ritual your skin has been asking for.")
-                .imageUrl(IMG + "1613440534903-c8f0d3e7a5fe?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("face mask","clay","skincare","clarifying")).rating(4.7).reviewCount(234).build(),
+                .tags(List.of("clay face mask","skincare jar","beauty")).rating(4.7).reviewCount(234).build(),
 
             Product.builder()
                 .name("Vitamin C Brightening Cream").category("Beauty").subcategory("Skincare")
                 .price(68.0).description("A rich yet fast-absorbing day cream with stabilized Vitamin C, bakuchiol, and shea butter. Visibly evens skin tone and protects against environmental stressors.")
-                .imageUrl(IMG + "1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("vitamin c","brightening","moisturiser","skincare")).rating(4.8).reviewCount(312).build(),
+                .tags(List.of("face cream jar","moisturizer","skincare")).rating(4.8).reviewCount(312).build(),
 
             // === BEAUTY / FRAGRANCE ===
             Product.builder()
                 .name("Golden Hour Eau de Parfum").category("Beauty").subcategory("Fragrance")
                 .price(95.0).description("A warm, enveloping fragrance that opens with bergamot and orange blossom before settling into a heart of jasmine, amber, and golden musk. 50ml.")
-                .imageUrl(IMG + "1541643600914-78b084683702?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("perfume","fragrance","warm","floral")).rating(4.9).reviewCount(198).build(),
+                .tags(List.of("perfume bottle","fragrance","luxury")).rating(4.9).reviewCount(198).build(),
 
             Product.builder()
                 .name("Garden Notes Perfume").category("Beauty").subcategory("Fragrance")
                 .price(88.0).description("A fresh, green floral that captures the feeling of wandering through a rain-kissed garden. Notes of violet leaf, peony, lily of the valley, and white cedar. 50ml.")
-                .imageUrl(IMG + "1588776814546-1ffedbe47add?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("perfume","floral","fresh","green")).rating(4.8).reviewCount(156).build(),
+                .tags(List.of("perfume bottle","floral fragrance","beauty")).rating(4.8).reviewCount(156).build(),
 
             // === BEAUTY / MAKEUP ===
             Product.builder()
                 .name("Tinted Lip Treatment").category("Beauty").subcategory("Makeup")
                 .price(22.0).description("A nourishing lip balm-gloss hybrid tinted with the most perfect natural rose. SPF 30, enriched with jojoba oil and shea butter. The one product you'll always reach for.")
-                .imageUrl(IMG + "1619451050621-83cb7aada2d7?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("lip balm","tinted","gloss","natural")).rating(4.9).reviewCount(678).build(),
+                .tags(List.of("lip gloss balm","tinted lip","makeup")).rating(4.9).reviewCount(678).build(),
 
             Product.builder()
                 .name("Illuminating Setting Powder").category("Beauty").subcategory("Makeup")
                 .price(42.0).clearancePrice(32.0).isClearance(true)
                 .description("A finely-milled translucent setting powder with a subtle luminosity that photographs beautifully. Sets makeup for 16 hours while giving skin an airbrushed, lit-from-within finish.")
-                .imageUrl(IMG + "1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&h=700")
-                .tags(List.of("powder","setting","luminous","makeup")).rating(4.7).reviewCount(245).build()
+                .tags(List.of("setting powder compact","makeup","beauty")).rating(4.7).reviewCount(245).build()
         );
 
         productRepository.saveAll(products);

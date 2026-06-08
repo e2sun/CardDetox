@@ -125,9 +125,9 @@ public class DataInitializer implements CommandLineRunner {
     /** Queries the Unsplash Search API and returns a 600x700 portrait image URL, or null on failure. */
     private String fetchUnsplash(String query) {
         try {
-            String q = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
             String endpoint = "https://api.unsplash.com/search/photos"
-                    + "?query=" + q
+                    + "?query=" + encoded
                     + "&per_page=1"
                     + "&orientation=portrait"
                     + "&content_filter=high";
